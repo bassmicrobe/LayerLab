@@ -50,6 +50,25 @@ LayerLab is free and **does not accept any money, sponsorship, or funding** - no
 
 ---
 
+## Certifi security update (2026-10-23)
+
+The source environment locks certifi to **2026.10.19**, addressing
+[GHSA-6q48-6c7w-9gw2](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2).
+It removes the compromised **emSign ECC Root CA - G3** trust anchor; unaffected
+emSign roots remain. TLS certificate and hostname verification stay enabled.
+For a source checkout, run `uv sync --frozen` after pulling this change, then
+restart the app. A direct `certifi>=2026.10.19` dependency also prevents runtime
+builds that do not consume the lockfile from retaining an older bundle.
+No other dependency version is changed.
+
+The existing **v0.7.0-alpha.16 macOS runtime is not updated by this source change**:
+its published archive contains certifi 2026.5.20 and the removed root. Packaged
+installations need a rebuilt, verified macOS runtime/app through the normal
+macOS distribution process. Do not disable TLS verification or re-add the root.
+The focused `Certifi security` CI checks the exact locked HTTP packages, the
+removed root fingerprint, and real requests/httpx TLS connections to public
+download origins. It does not publish desktop artifacts.
+
 ## Features
 
 **6-stem separation** via Demucs `htdemucs_6s`, with auto-detection of the best Torch device (CUDA on NVIDIA, MPS on Apple Silicon, CPU fallback).
