@@ -289,3 +289,15 @@ Windows 署名確認例:
 ```powershell
 signtool verify /pa /v "LayerLab.exe"
 ```
+
+## certifi セキュリティ更新（2026-10-23）
+
+ソース環境の certifi を 2026.10.19 に固定し、
+[GHSA-6q48-6c7w-9gw2](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2)
+の対象 emSign ECC Root CA - G3 を信頼対象から除外しました。他の依存バージョンは変更していません。
+ソース版は更新を取得後に `uv sync --frozen` を実行し、アプリを再起動してください。
+
+公開済み v0.7.0-alpha.16 の macOS runtime には certifi 2026.5.20 と対象証明書が残っています。
+今回のソース更新だけではインストール済みアプリや配布済みアーカイブは更新されません。
+macOS 上で通常手順による runtime/app の再ビルド・検証・配布が必要です。
+TLS 検証の無効化や、削除対象証明書の再追加はしないでください。
