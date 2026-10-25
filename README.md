@@ -14,6 +14,8 @@
 >
 > 元プロジェクトは [StemDeck（stemdeckapp/stemdeck）](https://github.com/stemdeckapp/stemdeck) です。LayerLabはApache License 2.0に基づく非公式変更版であり、元プロジェクトの公式リリースではありません。元プロジェクトとの提携・承認・推奨関係はありません。
 
+LayerLab is an unofficial modified fork of [StemDeck](https://github.com/stemdeckapp/stemdeck), not affiliated with or endorsed by the original project. Demucs code is MIT-licensed, but its published pretrained weights are not covered by that MIT license and have separate personal/research-use caveats. See the license section below before redistribution or commercial use.
+
 ## プロジェクトの由来
 
 | 区分 | プロジェクト |
