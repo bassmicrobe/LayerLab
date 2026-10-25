@@ -64,7 +64,7 @@ steps:
       - |
         set -eu
         test -n "${CI_COMMIT_TAG:-}"
-        RELEASE_REPO="${CI_REPO:-bassmicrobe/stemdeck}"
+        RELEASE_REPO="${CI_REPO:-bassmicrobe/LayerLab}"
         # A release label alone is not a successful security gate.
         successful_run="$(gh run list --repo "$RELEASE_REPO" --commit "$CI_COMMIT_SHA" --workflow ci.yml --status success --json databaseId --jq '.[0].databaseId // empty')"
         test -n "$successful_run"

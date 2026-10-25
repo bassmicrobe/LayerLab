@@ -1,8 +1,10 @@
 # LayerLab
 
+**[StemDeck](https://github.com/stemdeckapp/stemdeck)をベースに、音源分離・解析・デスクトップ機能を拡張した非公式forkです。**
+
 **日本語** | [English](README.en.md) | [詳細な日本語ガイド](README.ja.md) | [操作マニュアル](MANUAL.ja.md)
 
-[![CI](https://github.com/bassmicrobe/stemdeck/actions/workflows/ci.yml/badge.svg?branch=feat%2Fhigh-quality-separation)](https://github.com/bassmicrobe/stemdeck/actions/workflows/ci.yml)
+[![CI](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml/badge.svg?branch=feat%2Fhigh-quality-separation)](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml)
 
 音源を自分のPCで分離し、試聴・ミックス・書き出しできるローカルアプリです。MP3 / WAV / FLAC / M4A、利用する権利を持つYouTube・SoundCloud音源に対応します。分離サービスへの音源アップロード、アカウント登録、サブスクリプションは不要です。
 
@@ -10,9 +12,22 @@
 >
 > 元プロジェクトは [StemDeck（stemdeckapp/stemdeck）](https://github.com/stemdeckapp/stemdeck) です。LayerLabはApache License 2.0に基づく非公式変更版であり、元プロジェクトの公式リリースではありません。元プロジェクトとの提携・承認・推奨関係はありません。
 
+## プロジェクトの由来
+
+| 区分 | プロジェクト |
+| --- | --- |
+| 元プロジェクト・コードの出典 | [StemDeck / stemdeckapp/stemdeck](https://github.com/stemdeckapp/stemdeck) |
+| 本リポジトリ・変更版の名称 | [LayerLab / bassmicrobe/LayerLab](https://github.com/bassmicrobe/LayerLab) |
+
+アプリ名とこのforkのリポジトリ名を`LayerLab`に変更しました。元のStemDeck自体を改名したものではありません。元プロジェクトへの帰属とApache-2.0の`LICENSE`・`NOTICE`を保持しています。
+
+このforkでは品質プリセット、float32/Rust後処理、モデル常駐ワーカー、キューと進捗表示、コード/MIDI解析、独自UI、ローカルデスクトップ配布を追加・改良しています。詳細は[日本語ガイドの変更点](README.ja.md#この-fork-で加えた主な変更)とGit履歴を参照してください。
+
+現行のLayerLab実装・検証済み手順は[`feat/high-quality-separation`ブランチ](https://github.com/bassmicrobe/LayerLab/tree/feat/high-quality-separation)を対象とします。ソースから使う場合も、下記の手順でこのブランチへ切り替えてください。配布アプリは[Releases](https://github.com/bassmicrobe/LayerLab/releases)から取得できます。
+
 ## ダウンロードと公開状況
 
-[このforkのGitHub Releases](https://github.com/bassmicrobe/stemdeck/releases) に**実際に添付されているファイルのみ**が公開済みです。開発ブランチ、ビルド用スクリプト、過去のローカルDMGは、新版の公開・検証完了を意味しません。非公式版はPre-releaseとして公開します。
+[このforkのGitHub Releases](https://github.com/bassmicrobe/LayerLab/releases) に**実際に添付されているファイルのみ**が公開済みです。開発ブランチ、ビルド用スクリプト、過去のローカルDMGは、新版の公開・検証完了を意味しません。非公式版はPre-releaseとして公開します。
 
 | ファイル | 用途 |
 | --- | --- |
@@ -45,8 +60,8 @@ Developer ID署名・Apple公証を実施していないビルドは、その旨
 Git、uv、対応するPython（3.11～3.13）が必要です。Python 3.13を推奨し、macOS用CIも3.13で検証します。開発・ビルド手順の詳細は[日本語ガイド](README.ja.md)にあります。
 
 ```sh
-git clone https://github.com/bassmicrobe/stemdeck.git
-cd stemdeck
+git clone https://github.com/bassmicrobe/LayerLab.git
+cd LayerLab
 git switch feat/high-quality-separation
 ./run.sh setup
 ./run.sh start
@@ -85,6 +100,6 @@ node --test tests/*.test.mjs
 bash scripts/check-distribution-notices.sh
 ```
 
-CIは[このforkのGitHub Actions](https://github.com/bassmicrobe/stemdeck/actions/workflows/ci.yml)で確認できます。上流のCIバッジや別コミットの成功結果は、このforkのRelease検証結果として扱いません。未解決の依存脆弱性を無視して公開する運用にはしていません。
+CIは[このforkのGitHub Actions](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml)で確認できます。上流のCIバッジや別コミットの成功結果は、このforkのRelease検証結果として扱いません。未解決の依存脆弱性を無視して公開する運用にはしていません。
 
 元の英語READMEの技術説明と謝辞は[英語版](README.en.md)に保持しています。このforkでの追加・変更点、ビルド・署名・容量・環境変数の詳細は[日本語ガイド](README.ja.md)、日常操作は[マニュアル](MANUAL.ja.md)を参照してください。

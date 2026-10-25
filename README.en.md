@@ -4,21 +4,21 @@
 
 <h1>LayerLab</h1>
 
-**Unofficial fork test build. Free, local stem separation. No account. No upload. No subscription.**
+**Based on StemDeck. Unofficial fork test build. Free, local stem separation.**
 
 <div align="center">
-  <a href="https://github.com/bassmicrobe/stemdeck/actions/workflows/ci.yml"><img src="https://github.com/bassmicrobe/stemdeck/actions/workflows/ci.yml/badge.svg?branch=feat%2Fhigh-quality-separation" alt="Fork CI"></a>
-  <a href="https://github.com/bassmicrobe/stemdeck/stargazers"><img src="https://img.shields.io/github/stars/bassmicrobe/stemdeck?style=flat-square" alt="Fork GitHub Stars"></a>
-  <a href="https://github.com/bassmicrobe/stemdeck/releases"><img src="https://img.shields.io/github/downloads/bassmicrobe/stemdeck/total?style=flat-square&color=52c65f" alt="Fork Downloads"></a>
-  <a href="https://github.com/bassmicrobe/stemdeck/releases"><img src="https://img.shields.io/github/v/release/bassmicrobe/stemdeck?include_prereleases&style=flat-square" alt="Fork Test Releases"></a>
-  <a href="https://github.com/bassmicrobe/stemdeck/blob/feat/high-quality-separation/LICENSE"><img src="https://img.shields.io/github/license/bassmicrobe/stemdeck?style=flat-square" alt="License"></a>
+  <a href="https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml"><img src="https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml/badge.svg?branch=feat%2Fhigh-quality-separation" alt="Fork CI"></a>
+  <a href="https://github.com/bassmicrobe/LayerLab/stargazers"><img src="https://img.shields.io/github/stars/bassmicrobe/LayerLab?style=flat-square" alt="Fork GitHub Stars"></a>
+  <a href="https://github.com/bassmicrobe/LayerLab/releases"><img src="https://img.shields.io/github/downloads/bassmicrobe/LayerLab/total?style=flat-square&color=52c65f" alt="Fork Downloads"></a>
+  <a href="https://github.com/bassmicrobe/LayerLab/releases"><img src="https://img.shields.io/github/v/release/bassmicrobe/LayerLab?include_prereleases&style=flat-square" alt="Fork Test Releases"></a>
+  <a href="https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/LICENSE"><img src="https://img.shields.io/github/license/bassmicrobe/LayerLab?style=flat-square" alt="License"></a>
 </div>
 
 <br>
 
 <p align="center"><sub>UNOFFICIAL FORK TEST BUILD</sub></p>
 <div align="center">
-  <a href="https://github.com/bassmicrobe/stemdeck"><img src="https://img.shields.io/badge/Fork-bassmicrobe%2Fstemdeck-181717?style=flat-square&logo=github&logoColor=white" alt="Fork GitHub"></a>
+  <a href="https://github.com/bassmicrobe/LayerLab"><img src="https://img.shields.io/badge/Fork-bassmicrobe%2FLayerLab-181717?style=flat-square&logo=github&logoColor=white" alt="Fork GitHub"></a>
   <a href="https://github.com/stemdeckapp/stemdeck"><img src="https://img.shields.io/badge/Original-stemdeckapp%2Fstemdeck-6b7280?style=flat-square&logo=github&logoColor=white" alt="Original StemDeck"></a>
 </div>
 
@@ -27,6 +27,19 @@
 <br>
 
 LayerLab is an unofficial modified fork of [StemDeck](https://github.com/stemdeckapp/stemdeck). It is a test build for higher-quality local stem separation and is not an official upstream release, not affiliated with, and not endorsed by the original StemDeck project.
+
+The application and this fork repository are named **LayerLab**; the original
+**StemDeck** project has not been renamed. Upstream source and attribution remain
+credited to [stemdeckapp/stemdeck](https://github.com/stemdeckapp/stemdeck).
+This fork is maintained at [bassmicrobe/LayerLab](https://github.com/bassmicrobe/LayerLab)
+and retains the upstream Apache-2.0 `LICENSE` and `NOTICE`. Its additions include
+quality presets, float32/Rust processing, persistent model workers, queue/progress
+improvements, chord/MIDI analysis, a distinct UI and local desktop packaging.
+
+The current implementation and validated instructions target the
+[`feat/high-quality-separation` branch](https://github.com/bassmicrobe/LayerLab/tree/feat/high-quality-separation),
+not the older `main` implementation. Switch to that branch when using the source,
+or download a published test build from [Releases](https://github.com/bassmicrobe/LayerLab/releases).
 
 Drop in an MP3, WAV, FLAC, or M4A file, or paste a YouTube URL, and LayerLab splits the audio into up to six stems (vocals, drums, bass, guitar, piano, other). Play them back in a DAW-style multitrack mixer: mute, solo, balance levels, zoom the waveform, loop a region, and export individual stems or a custom mix. Everything runs locally on your own machine.
 
@@ -128,7 +141,7 @@ The web backend is intended for one local user on loopback. It has no multi-user
 
 ## Test Builds and Download
 
-Only assets actually present on [this fork's GitHub Releases](https://github.com/bassmicrobe/stemdeck/releases) are published builds. The supported macOS target is Apple Silicon on macOS 14 or later; Intel macOS is unsupported because current secure Torch wheels are unavailable. Windows is not validated or published in this macOS release. LayerLab builds are **unofficial fork test builds**, published as pre-releases, not official StemDeck releases. Locally built ad-hoc-signed apps are not Developer ID signed or notarized.
+Only assets actually present on [this fork's GitHub Releases](https://github.com/bassmicrobe/LayerLab/releases) are published builds. The supported macOS target is Apple Silicon on macOS 14 or later; Intel macOS is unsupported because current secure Torch wheels are unavailable. Windows is not validated or published in this macOS release. LayerLab builds are **unofficial fork test builds**, published as pre-releases, not official StemDeck releases. Locally built ad-hoc-signed apps are not Developer ID signed or notarized.
 
 Publication is blocked until CI, including the strict dependency audit, succeeds for the exact release commit. Torch is pinned to 2.14.1 and Torchaudio to 2.11.0. Demucs WAV output uses SoundFile without TorchCodec; official checkpoints are checksum-verified on every load and use explicit restricted loading with a temporary narrow allowlist. There is no unrestricted-pickle or insecure legacy-version fallback. See [AUDIT.ja.md](AUDIT.ja.md) and [SECURITY.md](SECURITY.md) for verification scope. A successful scan is not a guarantee against all vulnerabilities and does not grant additional model rights.
 
@@ -260,7 +273,8 @@ Python 3.12 or newer, `ffmpeg` on your PATH, and [uv](https://github.com/astral-
 #### macOS / Linux (one-shot)
 
 ```sh
-git clone https://github.com/bassmicrobe/stemdeck layerlab && cd layerlab
+git clone https://github.com/bassmicrobe/LayerLab layerlab && cd layerlab
+git switch feat/high-quality-separation
 ./run.sh setup     # installs ffmpeg + uv, runs uv sync
 ./run.sh start
 ```
@@ -276,7 +290,8 @@ Install prerequisites:
 - [ffmpeg](https://ffmpeg.org/download.html) — `winget install Gyan.FFmpeg` (or Chocolatey: `choco install ffmpeg`)
 
 ```powershell
-git clone https://github.com/bassmicrobe/stemdeck layerlab; cd layerlab
+git clone https://github.com/bassmicrobe/LayerLab layerlab; cd layerlab
+git switch feat/high-quality-separation
 uv sync
 uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
@@ -297,7 +312,8 @@ uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 #### Manual (any platform)
 
 ```sh
-git clone https://github.com/bassmicrobe/stemdeck layerlab && cd layerlab
+git clone https://github.com/bassmicrobe/LayerLab layerlab && cd layerlab
+git switch feat/high-quality-separation
 uv sync
 uv run uvicorn app.main:app --reload
 ```
@@ -554,7 +570,7 @@ If you sell, host, bundle, or provide services around this software, you are res
 
 | Platform | Link |
 |---|---|
-| Fork GitHub | [bassmicrobe/stemdeck](https://github.com/bassmicrobe/stemdeck) |
+| Fork GitHub | [bassmicrobe/LayerLab](https://github.com/bassmicrobe/LayerLab) |
 | Original project | [stemdeckapp/stemdeck](https://github.com/stemdeckapp/stemdeck) |
 
 ---
@@ -581,11 +597,11 @@ Issues, feature suggestions, and pull requests are welcome. See open issues for 
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=bassmicrobe%2Fstemdeck&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=bassmicrobe%2FLayerLab&type=date&legend=top-left">
   <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=bassmicrobe/stemdeck&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=bassmicrobe/stemdeck&type=date&legend=top-left" />
-   <img alt="Fork Star History Chart" src="https://api.star-history.com/chart?repos=bassmicrobe/stemdeck&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=bassmicrobe/LayerLab&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=bassmicrobe/LayerLab&type=date&legend=top-left" />
+   <img alt="Fork Star History Chart" src="https://api.star-history.com/chart?repos=bassmicrobe/LayerLab&type=date&legend=top-left" />
   </picture>
 </a>
 

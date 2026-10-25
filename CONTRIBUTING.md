@@ -11,12 +11,12 @@ By participating you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Ways to contribute
 
-- **Report a bug** - open an issue on [this fork](https://github.com/bassmicrobe/stemdeck/issues).
+- **Report a bug** - open an issue on [this fork](https://github.com/bassmicrobe/LayerLab/issues).
   Include your OS, the LayerLab version (Help icon -> About), and clear steps to reproduce.
-- **Suggest a feature** - open an issue on [this fork](https://github.com/bassmicrobe/stemdeck/issues).
+- **Suggest a feature** - open an issue on [this fork](https://github.com/bassmicrobe/LayerLab/issues).
 - **Improve the docs** - fixes and clarifications to the README or these guides are always useful.
 - **Write code** - bug fixes and features. For anything large, please open an issue or a
-  [Issue](https://github.com/bassmicrobe/stemdeck/issues) first so we can agree on the
+  [Issue](https://github.com/bassmicrobe/LayerLab/issues) first so we can agree on the
   approach before you invest time.
 - **Found a security issue?** Do not open a public issue - see [SECURITY.md](SECURITY.md).
 
@@ -84,5 +84,5 @@ contributions are licensed under the same terms.
 
 ## Questions
 
-Open an issue on [this fork](https://github.com/bassmicrobe/stemdeck/issues).
+Open an issue on [this fork](https://github.com/bassmicrobe/LayerLab/issues).
 Thanks for helping make LayerLab better.

@@ -11,9 +11,12 @@ LayerLab は、音源をローカル環境で stem 分離するためのデス�
 ## 元プロジェクト
 
 - 元プロジェクト: [stemdeckapp/stemdeck](https://github.com/stemdeckapp/stemdeck)
+- 本fork: [LayerLab / bassmicrobe/LayerLab](https://github.com/bassmicrobe/LayerLab)
 - ライセンス: Apache License 2.0
 - 本リポジトリ内のライセンス表記: [LICENSE](LICENSE), [NOTICE](NOTICE)
 - 配布物に含める表記: `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.txt`, `THIRD_PARTY_LICENSES.txt`, `THIRD_PARTY_INVENTORY.json`
+
+`LayerLab`は本forkの独自名称であり、元のStemDeck自体を改名したものではありません。README・NOTICEで出典を明示し、上流の著作権・ライセンス・帰属表示は保持します。
 
 Apache License 2.0 では、再配布時にライセンス本文を渡すこと、変更したファイルに変更があることを示すこと、NOTICE がある場合はその表示を保持することが求められます。本 fork では `NOTICE` に元プロジェクトへの帰属と変更概要を記載しています。
 

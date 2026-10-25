@@ -1744,11 +1744,11 @@ function wireWidgets() {
 
 const FALLBACK_VERSION = "0.1.0";
 let currentVersion = FALLBACK_VERSION;
-const REPO_URL = "https://github.com/bassmicrobe/stemdeck";
-const RELEASES_URL = "https://github.com/bassmicrobe/stemdeck/releases";
+const REPO_URL = "https://github.com/bassmicrobe/LayerLab";
+const RELEASES_URL = "https://github.com/bassmicrobe/LayerLab/releases";
 // GitHub's /releases/latest endpoint ignores pre-releases. Enhanced test builds
 // are intentionally published as pre-releases, so read the release list instead.
-const RELEASES_API = "https://api.github.com/repos/bassmicrobe/stemdeck/releases?per_page=10";
+const RELEASES_API = "https://api.github.com/repos/bassmicrobe/LayerLab/releases?per_page=10";
 const DISMISSED_UPDATE_KEY = "stemdeck.dismissed_update";
 
 function normalizeVersion(value) {
