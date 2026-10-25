@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
@@ -22,6 +23,7 @@ from app.core.config import (
 from app.core.models import Job, JobCancelled
 from app.core.registry import add_proc, remove_proc
 from app.pipeline.demucs_pool import WorkerUnavailable, separate_with_worker
+from app.pipeline.demucs_protocol import PROTOCOL_PREFIX
 from app.pipeline.process import popen_background, terminate_process
 from app.pipeline.progress import set_stage_progress
 
@@ -96,7 +98,7 @@ def build_demucs_command(
     cmd = [
         sys.executable,
         "-m",
-        "demucs",
+        "app.pipeline.demucs_cli",
         "-n",
         settings.model,
         "-d",
@@ -248,6 +250,14 @@ def _separate_cli(
                 buf = ""
                 if not line:
                     continue
+                if line.startswith(PROTOCOL_PREFIX):
+                    event = json.loads(line[len(PROTOCOL_PREFIX) :])
+                    if event.get("event") == "progress":
+                        fraction = float(event["fraction"])
+                        set_stage_progress(
+                            job, "separate", fraction, stage=f"Separating {fraction:.0%}"
+                        )
+                    continue
                 m = _PCT_RE.search(line)
                 if m:
                     pct = max(0, min(100, int(m.group(1))))
@@ -261,6 +271,9 @@ def _separate_cli(
                 buf += ch
 
         proc.wait()
+    except Exception:
+        terminate_process(proc)
+        raise
     finally:
         _done_evt.set()
         remove_proc(job.id, proc)

@@ -32,7 +32,7 @@ Hound's Apache-2.0 license text and version in the generated third-party bundle.
 | --- | --- | --- |
 | [chord-extractor](https://github.com/ohollo/chord-extractor), which wraps Chordino | GPL-2.0 | Not embedded because distributing a combined application would add reciprocal GPL obligations that do not match the current packaging plan. |
 | [Sheet Sage](https://github.com/chrisdonahue/sheetsage) | Code is MIT, but released transcription model weights are CC BY-NC-SA 3.0 | Not integrated because the published models restrict commercial use. |
-| [Basic Pitch](https://github.com/spotify/basic-pitch) | Apache-2.0 | License-compatible, but its current TensorFlow/CoreML dependency matrix does not support LayerLab's full Python 3.10-3.13 desktop runtime cleanly. Revisit as an isolated optional worker. |
+| [Basic Pitch](https://github.com/spotify/basic-pitch) | Apache-2.0 | License-compatible, but its current TensorFlow/CoreML dependency matrix does not support LayerLab's full Python 3.11-3.13 desktop runtime cleanly. Revisit as an isolated optional worker. |
 | [madmom](https://github.com/CPJKU/madmom) | BSD-3-Clause code; bundled data/models are CC BY-NC-SA 4.0 | Not integrated because its published model/data terms are not suitable for a commercial-capable default runtime. |
 | [Omnizart](https://github.com/Music-and-Culture-Technology-Lab/omnizart) | MIT | Not integrated because upstream documents no ARM macOS support, which excludes LayerLab's primary Apple Silicon target. |
 | [lv-chordia](https://github.com/openmirlab/lv-chordia) | MIT | A real-audio trial was slower than the current chroma path and returned no usable chords, so it was not added as a quality upgrade. |

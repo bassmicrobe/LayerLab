@@ -4,9 +4,27 @@ import threading
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from app.core.models import Job
 from app.pipeline import beat_tracker
+
+
+def test_neural_checkpoint_resolves_to_local_file_before_restricted_loading(monkeypatch, tmp_path):
+    import torch
+
+    cache = tmp_path / "checkpoints"
+    cache.mkdir()
+    checkpoint = cache / "beat_this-final0.ckpt"
+    checkpoint.write_bytes(b"cached")
+    monkeypatch.setattr(torch.hub, "get_dir", lambda: str(tmp_path))
+    monkeypatch.setattr(
+        torch.hub,
+        "load_state_dict_from_url",
+        lambda *_args, **_kwargs: pytest.fail("pickle URL load"),
+    )
+
+    assert beat_tracker._checkpoint_path("final0") == checkpoint
 
 
 def test_auto_tracker_uses_accurate_neural_model_for_all_profiles():

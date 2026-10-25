@@ -128,9 +128,9 @@ The web backend is intended for one local user on loopback. It has no multi-user
 
 ## Test Builds and Download
 
-Only assets actually present on [this fork's GitHub Releases](https://github.com/bassmicrobe/stemdeck/releases) are published builds. Build scripts for Intel macOS and Windows do not mean those artifacts have been tested or published. LayerLab builds are **unofficial fork test builds**, published as pre-releases, not official StemDeck releases. Locally built ad-hoc-signed apps are not Developer ID signed or notarized.
+Only assets actually present on [this fork's GitHub Releases](https://github.com/bassmicrobe/stemdeck/releases) are published builds. The supported macOS target is Apple Silicon on macOS 14 or later; Intel macOS is unsupported because current secure Torch wheels are unavailable. Windows is not validated or published in this macOS release. LayerLab builds are **unofficial fork test builds**, published as pre-releases, not official StemDeck releases. Locally built ad-hoc-signed apps are not Developer ID signed or notarized.
 
-Publication is blocked until CI, including the strict dependency audit, succeeds for the exact release commit. The compatibility-pinned PyTorch runtime still has known advisories; see [AUDIT.ja.md](AUDIT.ja.md) and [SECURITY.md](SECURITY.md). A test-build label does not fix security issues or grant additional model rights. Do not use old assets as evidence that a current release passed CI.
+Publication is blocked until CI, including the strict dependency audit, succeeds for the exact release commit. Torch is pinned to 2.14.1 and Torchaudio to 2.11.0. Demucs WAV output uses SoundFile without TorchCodec; official checkpoints are checksum-verified on every load and use explicit restricted loading with a temporary narrow allowlist. There is no unrestricted-pickle or insecure legacy-version fallback. See [AUDIT.ja.md](AUDIT.ja.md) and [SECURITY.md](SECURITY.md) for verification scope. A successful scan is not a guarantee against all vulnerabilities and does not grant additional model rights.
 
 `LayerLab-macOS-arm64.dmg` is the end-user installer and includes the Python runtime archive. `LayerLab-runtime-macOS-arm64.tar.zst` contains only Python/backend/runtime resources; it is not a standalone macOS application.
 
@@ -139,7 +139,6 @@ Publication is blocked until CI, including the strict dependency audit, succeeds
 | DMG | GPU | Chip |
 |---|---|---|
 | `LayerLab-macOS-arm64.dmg` | Apple Silicon (MPS) | M1 and later |
-| `LayerLab-macOS-x64.dmg` | CPU only | Intel |
 
 Open the DMG, drag LayerLab to Applications, and launch it. The macOS DMG
 contains the Python runtime, so first launch verifies and extracts it locally
@@ -220,23 +219,18 @@ LayerLab is built on **[Python 3.12](https://python.org)** managed via **[uv](ht
 
 ### macOS Native App
 
-Requires Rust, Node.js, and Python 3.10-3.13. Builds a self-contained `.app`
+Requires macOS 14+, Apple Silicon, Rust, Node.js, and Python 3.11-3.13. Builds a self-contained `.app`
 with the generated runtime archive embedded for offline runtime installation.
 
 ```sh
 # First time only — add the cross-compilation targets
 rustup target add aarch64-apple-darwin   # Apple Silicon
-rustup target add x86_64-apple-darwin    # Intel
 
 # Build Apple Silicon
 ARCH=arm64 scripts/macos/make-runtime-pack.sh
 ARCH=arm64 scripts/macos/make-app.sh
 ARCH=arm64 scripts/macos/make-dmg.sh
 
-# Build Intel (requires Rosetta 2 and an x86_64 Python)
-ARCH=x64 scripts/macos/make-runtime-pack.sh
-ARCH=x64 scripts/macos/make-app.sh
-ARCH=x64 scripts/macos/make-dmg.sh
 ```
 
 The `.app` lands at `desktop/src-tauri/target/<target>/release/bundle/macos/LayerLab.app`. The DMG lands at `.build/macos-dist/LayerLab-macOS-<arch>.dmg`.
@@ -291,10 +285,9 @@ Open <http://localhost:8000>.
 
 > `run.sh` is macOS/Linux only. On Windows use the PowerShell commands above, or run inside WSL.
 
-**NVIDIA GPU (CUDA):** install the CUDA-enabled torch build before starting:
+**NVIDIA GPU (CUDA):** use only a CUDA build matching the locked Torch 2.14.1 version and your driver. Do not downgrade Torch to satisfy an older CUDA index. Windows/CUDA is not validated in this macOS release. After installing compatible dependencies:
 
 ```powershell
-uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 $env:STEMDECK_DEMUCS_DEVICE = "cuda"
 uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
@@ -443,8 +436,7 @@ Completed jobs may have their source audio removed to save disk space. In that c
 Keep the unauthenticated backend on loopback. Host/Origin validation and body limits
 are enabled, but public hosting still requires an authenticated gateway and
 appropriate rate/storage limits. See [SECURITY.md](SECURITY.md) and the
-[Japanese audit report](AUDIT.ja.md) for known limitations, including unpatched
-PyTorch advisories in the compatibility-pinned runtime.
+[Japanese audit report](AUDIT.ja.md) for verification scope and remaining limitations.
 
 ---
 
@@ -599,6 +591,6 @@ Issues, feature suggestions, and pull requests are welcome. See open issues for 
 
 ## Dependency Security Notes (2026-10-25)
 
-- Pillow **>=13.0.0** on Python 3.11+; the Python 3.10 fallback remains on an older, vulnerable line and is not a validated distribution target.
+- Python 3.11-3.13 and Pillow **>=13.0.0**; the vulnerable Python 3.10/Intel compatibility fallbacks have been removed.
 - Python base image: `python:3.12.15-slim@sha256:a0f57064…`
-- Compatibility-pinned PyTorch remains a release blocker until its advisories are resolved. CI audits the installed locked environment without vulnerability exclusions; older Woodpecker ignore lists do not establish a safe release.
+- Torch **2.14.1**, Torchaudio **2.11.0**, and Demucs **4.0.1**. CI and runtime packaging audit installed dependencies without vulnerability exclusions. WAV output uses SoundFile to retain Demucs compatibility without TorchCodec.

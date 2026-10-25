@@ -9,8 +9,9 @@ Install:
 
 First launch:
 
-- LayerLab is a thin native app. It downloads a pinned, checksummed
-  bundled LayerLab runtime pack on first launch.
+- Requires macOS 14 or later on Apple Silicon (M1 or newer).
+- LayerLab verifies and extracts its embedded, checksummed Python runtime
+  pack on first launch; this DMG does not require a runtime download.
 - The setup screen shows the expected runtime download size, current
   workspace/cache usage, the data directory, and the bundled license notice.
 - The runtime installs to:

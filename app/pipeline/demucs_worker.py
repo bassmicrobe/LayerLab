@@ -19,13 +19,13 @@ from typing import Any, TypeVar
 import torch
 from demucs import apply as demucs_apply
 from demucs.apply import BagOfModels, apply_model
-from demucs.audio import save_audio
 from demucs.hdemucs import HDemucs
 from demucs.htdemucs import HTDemucs
-from demucs.pretrained import get_model
 from demucs.separate import load_track
 
 from app.core.config import DEMUCS_WORKER_HEARTBEAT_INTERVAL
+from app.pipeline.demucs_audio import save_audio
+from app.pipeline.demucs_models import get_model
 from app.pipeline.demucs_protocol import (
     ENGINE,
     PROTOCOL_PREFIX,

@@ -6,7 +6,7 @@ name = "layerlab"
 dynamic = ["version"]
 description = "LayerLab local audio stem separation with a DAW-style player."
 license = "Apache-2.0"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     # Keep the CA security floor even for installations without uv.lock.
     "certifi>=2026.10.19",
@@ -18,28 +18,16 @@ dependencies = [
     "anyio>=4.14.2",
     "idna>=3.15",
     "msgpack>=1.2.1",
-    "pillow>=13.0.0; python_version >= '3.11'",
-    "pillow>=12.3.0; python_version < '3.11'",
+    "pillow>=13.0.0",
     "setuptools>=84.1.0",
-    "filelock>=4.2.1; python_version >= '3.11'",
-    "filelock>=3.29.0; python_version < '3.11'",
+    "filelock>=4.2.1",
     "fsspec>=2026.6.0",
     # The persistent worker integrates with Demucs' apply/save internals. Keep
     # this exact until a newer release passes the protocol compatibility suite.
     "demucs==4.0.1",
-    # Pin torch/torchaudio to 2.6.x where available — torchaudio 2.7+ removed its built-in
-    # audio writer and now requires the separate `torchcodec` package, which
-    # has ABI issues with torch 2.11. Demucs 4.0.1 calls torchaudio.save() to
-    # write stems, so it breaks on 2.7+.
-    "torch>=2.6,<2.7; sys_platform != 'darwin' or platform_machine != 'x86_64'",
-    "torchaudio>=2.6,<2.7; sys_platform != 'darwin' or platform_machine != 'x86_64'",
-    # PyTorch does not publish macOS x86_64 wheels for 2.6.x. Keep Intel macOS
-    # on the last compatible line so the x64 runtime pack can still be built.
-    "torch>=2.2,<2.3; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    "torchaudio>=2.2,<2.3; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    # torchaudio 2.6 dispatches WAV writes through libsndfile via soundfile.
-    # Without this, demucs crashes on save with "Couldn't find appropriate
-    # backend to handle uri ... drums.wav".
+    # WAV I/O uses soundfile, not TorchCodec. TorchAudio 2.11 supports Torch >=2.11.
+    "torch==2.14.1",
+    "torchaudio==2.11.0",
     "soundfile>=0.12",
     # BPM + key analysis on the downloaded source. Pulls numpy/scipy/numba.
     "librosa>=0.10",
@@ -47,14 +35,7 @@ dependencies = [
     # weights are downloaded into Torch's cache on first use.
     "beat-this>=1.1,<2",
     # MIDI validation, key analysis, and Roman-numeral chord summaries.
-    "music21>=10.5,<11; python_version >= '3.11'",
-    "music21>=9,<10; python_version < '3.11'",
-    # Current llvmlite releases no longer publish macOS x86_64 wheels, which
-    # makes Intel runtime builds require a full LLVM/CMake toolchain. Keep Intel
-    # macOS on a wheel-backed Numba line.
-    "numba>=0.61,<0.62; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    # Torch 2.2's Intel macOS wheel was built against NumPy 1.x.
-    "numpy<2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    "music21>=10.5,<11",
     # ITU-R BS.1770 integrated-loudness (LUFS) measurement for the
     # post-analysis loudness card. Pure Python, depends on scipy which
     # librosa already pulls in.
@@ -82,6 +63,10 @@ dev = [
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.uv]
+# No security-maintained PyTorch wheel exists for Intel macOS.
+environments = ["sys_platform != 'darwin' or platform_machine == 'arm64'"]
 
 # Derive the version from git tags. Writes app/_version.py at build time as a
 # runtime fallback for environments without installed package metadata.

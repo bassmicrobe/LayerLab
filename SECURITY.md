@@ -53,16 +53,24 @@ multipart overhead; both declared and streamed sizes are checked. Multipart
 files are closed on success and failure. Dynamic exports have a shared capacity
 limit (`STEMDECK_MAX_EXPORTS`, default 2); requests over capacity return 503.
 
-### Known dependency limitations
+### Model loading and dependency scope
 
-The current Torch/Torchaudio compatibility pins (2.6.x, or 2.2.x on Intel macOS)
-leave known PyTorch security advisories unresolved. Do not load untrusted model
-checkpoints or replace the model cache with files from an unverified source.
-Demucs currently downloads official models with hash checking, but that does
-not fix the vulnerable deserializer or make arbitrary local checkpoints safe.
-A complete remediation requires a Torch upgrade, audio-writer migration and
-real-model compatibility testing on each supported platform. See
-[AUDIT.ja.md](AUDIT.ja.md) for the current audit scope and remaining gaps.
+The runtime pins Torch 2.14.1 and Torchaudio 2.11.0. Demucs 4.0.1 inference is
+retained, but WAV output uses SoundFile rather than the TorchCodec-dependent
+Torchaudio writer. Official Demucs caches are checked against their upstream
+SHA-256 checksum prefixes on every load, then deserialized with explicit
+`weights_only=True` and a temporary, narrow architecture/scalar allowlist.
+There is no unrestricted-pickle or legacy-Torch fallback. Do not supply
+untrusted checkpoints: restricted loading is defense in depth, not a sandbox
+or a guarantee against resource-exhaustion attacks.
+
+Release CI and the actual packaged Python environment are audited without
+vulnerability exclusions. A successful scan only covers advisories known to
+the scanner at that time, not every native library or future vulnerability.
+The supported macOS build requires Apple Silicon and macOS 14 or later;
+Intel macOS is rejected rather than installing an insecure legacy wheel.
+Windows is not validated or published as part of this macOS release. See
+[AUDIT.ja.md](AUDIT.ja.md) for verification scope and remaining gaps.
 
 We are most interested in reports about:
 

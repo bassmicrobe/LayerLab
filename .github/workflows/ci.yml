@@ -39,6 +39,10 @@ jobs:
           bash -n run.sh scripts/check-distribution-notices.sh
       - name: Run Python suite with real FFmpeg available
         run: uv run --frozen pytest -q
+      - name: Separate real Demucs models without TorchCodec
+        run: |
+          uv run --frozen python -m app.pipeline.demucs_smoke --model htdemucs_6s --device cpu --output .ci-smoke/6s
+          uv run --frozen python -m app.pipeline.demucs_smoke --model htdemucs_ft --device cpu --output .ci-smoke/ft
       - name: Verify CA roots and real TLS downloads
         env:
           CERTIFI_TLS_SMOKE: '1'

@@ -27,9 +27,15 @@ fail the security gate.
 - `LayerLab-macOS-arm64.dmg`
 - `LayerLab-runtime-macOS-arm64.tar.zst`
 - `SHA256SUMS-macOS-arm64.txt`
+- `BUILD_PROVENANCE-macOS-arm64.json`
+- `DEPENDENCY_AUDIT-macOS-arm64.json`
 
 ## Fork changes
 
+- Torch 2.14.1 with Demucs 4.0.1: restricted/checksummed model loading and
+  SoundFile WAV output without TorchCodec. No vulnerable legacy fallback.
+- Strict audits of the actual bundled Python environment, with no advisory
+  exclusions. macOS 14+ Apple Silicon only; Intel macOS is unsupported.
 - Higher-quality separation presets and Demucs tuning.
 - Float32-oriented processing and clipping-resistant preprocessing.
 - Bass dropout repair and phase/residual repair.

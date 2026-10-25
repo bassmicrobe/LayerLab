@@ -1153,12 +1153,11 @@ fn install_cuda_torch(python: &Path, index_url: &str, state: &BackendState) -> R
     // runs — pip validates the `home` entry and fails if it doesn't exist.
     patch_pyvenv_cfg(python);
 
-    // Use the explicit local-version suffix (e.g. torch==2.6.0+cu124) so pip
-    // treats the CUDA wheel as a distinct version from the CPU-only 2.6.0
-    // wheel and doesn't skip the install as "already satisfied".
+    // Never reinstall a vulnerable legacy Torch to support an older CUDA index.
+    // An unavailable secure wheel must fail rather than downgrade the runtime.
     let tag = cuda_tag_from_url(index_url);
-    let torch_spec = format!("torch==2.6.0+{tag}");
-    let torchaudio_spec = format!("torchaudio==2.6.0+{tag}");
+    let torch_spec = format!("torch==2.14.1+{tag}");
+    let torchaudio_spec = "torchaudio==2.11.0";
     // --ignore-installed: overwrites even a corrupted/partial install that
     // has no RECORD file. --no-deps: only replace torch/torchaudio wheels.
     let mut command = Command::new(python);
@@ -1168,7 +1167,7 @@ fn install_cuda_torch(python: &Path, index_url: &str, state: &BackendState) -> R
             "pip",
             "install",
             &torch_spec,
-            &torchaudio_spec,
+            torchaudio_spec,
             "--index-url",
             index_url,
             "--ignore-installed",

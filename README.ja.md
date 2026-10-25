@@ -89,7 +89,9 @@ Apache License 2.0 は、ソフトウェアの商用利用、有償配布、社�
 - `STEMDECK_ALLOWED_HOSTS`: 追加で許可する正確なホスト名/IPをカンマ区切りで指定。URL・ポート・ワイルドカードは指定できません。変更しても認証は追加されません。
 - JSON本文は1MiB、アップロードファイルは100MiBまで。容量超過や不正な値は登録前に拒否します。
 
-監査で修正した内容と未解決の依存ライブラリ問題は [AUDIT.ja.md](AUDIT.ja.md)、運用上の脅威モデルは [SECURITY.md](SECURITY.md) を参照してください。**PyTorchの既知の問題はまだ完全には解消していません。信頼できないモデル重みを読み込まないでください。**
+監査で修正した内容と確認範囲は [AUDIT.ja.md](AUDIT.ja.md)、運用上の脅威モデルは [SECURITY.md](SECURITY.md) を参照してください。PyTorch 2.14.1 / Torchaudio 2.11.0へ更新し、DemucsのWAV保存をSoundFileへ移行しました。公式モデルは毎回チェックサム検証し、限定的な許可リストと`weights_only=True`で読み込みます。無制限pickle読込や古いTorchへのフォールバックは行いません。検査成功も完全な安全の保証ではありません。
+
+対応Pythonは3.11～3.13です。macOSの配布対象は**macOS 14以降のApple Silicon専用**です。安全な現行wheelのないIntel Macは非対応、Windowsは今回の検証・公開対象外です。
 
 音源の保存期間は標準で処理完了後24時間です。`STEMDECK_JOB_TTL_SECONDS`で変更できます。永久保存ではないので、必要なstemやミックスは書き出してください。完了時刻を持たない古いジョブは受付時刻から計算します。
 

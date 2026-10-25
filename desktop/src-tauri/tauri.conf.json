@@ -30,7 +30,7 @@
     "targets": ["app"],
     "icon": ["icons/icon.icns", "icons/icon.png", "icons/icon.ico"],
     "macOS": {
-      "minimumSystemVersion": "13.0",
+      "minimumSystemVersion": "14.0",
       "dmg": {
         "windowSize": {
           "width": 660,

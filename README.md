@@ -16,15 +16,15 @@
 
 | ファイル | 用途 |
 | --- | --- |
-| `LayerLab-macOS-arm64.dmg` | Apple Silicon Mac向けアプリ。通常はこちらを使用します。Pythonランタイムを同梱します。 |
+| `LayerLab-macOS-arm64.dmg` | macOS 14以降のApple Silicon Mac向けアプリ。通常はこちらを使用します。Pythonランタイムを同梱します。 |
 | `LayerLab-runtime-macOS-arm64.tar.zst` | Python・バックエンド等の実行環境。単体ではMacアプリとして起動できません。 |
 | `SHA256SUMS-macOS-arm64.txt` | ダウンロードしたファイルの整合性確認用です。 |
 
 macOS版はDMGを開き、アプリをApplicationsへインストールして起動します。初回は同梱ランタイムを検証・展開し、FFmpeg/ffprobeを取得します。AIモデルは必要になったときに取得します。初回セットアップにはインターネット接続と数GB以上の空き容量が必要です。
 
-**現在の公開条件:** 同じコミットに対してCI・依存関係のセキュリティ検査・配布物検証が成功した場合にだけ公開します。PyTorchの互換性固定に伴う既知の問題が残っており、「テスト版」という表示だけで安全性を保証するものではありません。[監査記録](AUDIT.ja.md) と [セキュリティ方針](SECURITY.md) を確認してください。
+**現在の公開条件:** 同じコミットに対してCI・依存関係のセキュリティ検査・配布物検証が成功した場合にだけ公開します。PyTorchを2.14.1へ更新し、DemucsのWAV保存をSoundFileへ移行しました。公式モデルは読込ごとにチェックサムを確認し、`weights_only=True`と限定的な許可リストで読み込みます。危険な旧版や無制限pickle読込へのフォールバックは行いません。検査成功も脆弱性が一切ないことの保証ではありません。[監査記録](AUDIT.ja.md) と [セキュリティ方針](SECURITY.md) を確認してください。
 
-Developer ID署名・Apple公証を実施していないビルドは、その旨をRelease本文に明記します。ad-hoc署名は正式な配布署名ではありません。Intel Mac / Windows向けスクリプトもありますが、各版の公開・検証状況はReleaseごとに確認してください。
+Developer ID署名・Apple公証を実施していないビルドは、その旨をRelease本文に明記します。ad-hoc署名は正式な配布署名ではありません。安全な現行PyTorchのwheelがないIntel Macは非対応です。Windowsは今回の配布検証・公開対象外です。
 
 ## 主な機能
 
@@ -42,7 +42,7 @@ Developer ID署名・Apple公証を実施していないビルドは、その旨
 
 ## ローカルWeb版の起動
 
-Git、uv、対応するPython（3.10～3.13）が必要です。新規環境はPython 3.13を推奨し、今回のmacOS用CIも3.13で検証します。3.10向け互換依存には追加の既知の脆弱性が残るため、配布対象として検証していません。開発・ビルド手順の詳細は[日本語ガイド](README.ja.md)にあります。
+Git、uv、対応するPython（3.11～3.13）が必要です。Python 3.13を推奨し、macOS用CIも3.13で検証します。開発・ビルド手順の詳細は[日本語ガイド](README.ja.md)にあります。
 
 ```sh
 git clone https://github.com/bassmicrobe/stemdeck.git
