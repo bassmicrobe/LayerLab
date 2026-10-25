@@ -346,7 +346,8 @@ def _blend_bass_dropout_repair(
                 deficit = residual_env - (bass_env * trigger_ratio)
                 weight = np.clip(deficit / (residual_env + 1e-8), 0.0, max_blend)
                 short_gap_mask = _boolean_moving_fill(
-                    (residual_env > floor) & (bass_env * BASS_REPAIR_SHORT_GAP_RATIO < residual_env),
+                    (residual_env > floor)
+                    & (bass_env * BASS_REPAIR_SHORT_GAP_RATIO < residual_env),
                     short_gap,
                 )
                 short_gap_weight = np.where(short_gap_mask, max_blend * 0.72, 0.0)
@@ -394,7 +395,9 @@ def _commit_pcm_outputs(
     if not valid:
         for _, output in pairs:
             output.unlink(missing_ok=True)
-        logger.warning("Rust PCM output validation failed for job %s; using Python fallback", job.id)
+        logger.warning(
+            "Rust PCM output validation failed for job %s; using Python fallback", job.id
+        )
         return None
 
     changed = 0
@@ -416,9 +419,7 @@ def _run_rust_pcm_file_operation(
 ) -> int | None:
     payload = {
         "operation": operation,
-        "files": [
-            {"input": str(source), "output": str(output)} for source, output in pairs
-        ],
+        "files": [{"input": str(source), "output": str(output)} for source, output in pairs],
         **settings,
     }
     response = run_pcm_command(job, payload)
@@ -436,9 +437,7 @@ def process_stem_outputs_with_rust(
 ) -> dict[str, PcmAnalysis] | None:
     """Fuse final gate, stabilization, RMS, and waveform analysis in Rust."""
     available = [
-        stems_dir / f"{name}.wav"
-        for name in stem_names
-        if (stems_dir / f"{name}.wav").is_file()
+        stems_dir / f"{name}.wav" for name in stem_names if (stems_dir / f"{name}.wav").is_file()
     ]
     if not available:
         return None
@@ -459,9 +458,7 @@ def process_stem_outputs_with_rust(
         job,
         {
             "operation": "process",
-            "files": [
-                {"input": str(source), "output": str(output)} for source, output in pairs
-            ],
+            "files": [{"input": str(source), "output": str(output)} for source, output in pairs],
             "gate": gate,
             "stabilize": stabilize,
             "bins": _PEAK_POINTS,
@@ -1052,7 +1049,9 @@ def gate_stem_outputs(job: Job, stems_dir: Path, stem_names: list[str]) -> bool:
 
     old_stage = job.stage_message
     tmp_pairs: list[tuple[Path, Path]] = []
-    subtype = "FLOAT" if wav_codec_for_quality_preset(job.quality_preset) == "pcm_f32le" else "PCM_16"
+    subtype = (
+        "FLOAT" if wav_codec_for_quality_preset(job.quality_preset) == "pcm_f32le" else "PCM_16"
+    )
     _set(job, stage="Gating near-silent stem bleed...")
     try:
         total = max(1, len(available))
@@ -1290,8 +1289,7 @@ def compute_stem_peaks(
                         minima = np.minimum(np.min(shaped, axis=(1, 2)), 0.0)
                         maxima = np.maximum(np.max(shaped, axis=(1, 2)), 0.0)
                         result.extend(
-                            [float(mn), float(mx)]
-                            for mn, mx in zip(minima, maxima, strict=False)
+                            [float(mn), float(mx)] for mn, mx in zip(minima, maxima, strict=False)
                         )
                     remainder = block[full_bins * chunk :]
                     if remainder.size and len(result) < _PEAK_POINTS:
@@ -1321,16 +1319,21 @@ def _write_peaks_json(stems_dir: Path, peaks: dict[str, list[list[float]]]) -> N
         logger.warning("could not write peaks.json for %s", stems_dir.name, exc_info=True)
 
 
+def _retention_started_at(job: Job) -> float:
+    return job.completed_at if job.completed_at is not None else job.created_at
+
+
 def sweep_old_jobs(jobs_dir: Path) -> None:
     """Delete job directories older than JOB_TTL_SECONDS and remove them from
     the in-memory registry. Called hourly from the background sweep loop
     started at app startup.
 
-    Prefers Job.created_at over directory mtime (which can be touched by
-    unrelated filesystem events), and never deletes the directory of an
+    Retains terminal jobs from completion, not submission, so a long-running
+    job cannot expire immediately. Legacy records without completed_at use
+    created_at. Never deletes the directory of an
     active (non-terminal) registered job even if its timestamp looks old.
-    Falls back to mtime for orphan directories left over from a previous
-    server run, since the registry is in-memory only."""
+    Falls back to mtime for orphan directories without a restored registry
+    entry."""
     cutoff = time.time() - JOB_TTL_SECONDS
     if not jobs_dir.is_dir():
         return
@@ -1343,7 +1346,7 @@ def sweep_old_jobs(jobs_dir: Path) -> None:
         if job is not None:
             if job.status not in _TERMINAL:
                 continue  # never delete an active job's working dir
-            if job.created_at >= cutoff:
+            if _retention_started_at(job) >= cutoff:
                 continue
         elif d.stat().st_mtime >= cutoff:
             continue
@@ -1351,7 +1354,11 @@ def sweep_old_jobs(jobs_dir: Path) -> None:
         registry_remove(d.name)
         removed = True
     for job_id, job in jobs.items():
-        if job.status in _TERMINAL and job.created_at < cutoff and not (jobs_dir / job_id).exists():
+        if (
+            job.status in _TERMINAL
+            and _retention_started_at(job) < cutoff
+            and not (jobs_dir / job_id).exists()
+        ):
             registry_remove(job_id)
             removed = True
     if removed:

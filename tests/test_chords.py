@@ -337,9 +337,30 @@ def test_smooth_short_segments_removes_single_beat_complex_label():
 def test_prepare_chord_midi_segments_supports_triads_and_bar_grid():
     segments = chord_segments_from_metadata(
         [
-            {"label": "Bm7", "start": 0.0, "end": 1.0, "start_beat": 0, "end_beat": 1, "confidence": 0.9},
-            {"label": "Dmaj7", "start": 1.0, "end": 3.0, "start_beat": 1, "end_beat": 3, "confidence": 0.8},
-            {"label": "Gmaj7", "start": 3.0, "end": 4.0, "start_beat": 3, "end_beat": 4, "confidence": 0.7},
+            {
+                "label": "Bm7",
+                "start": 0.0,
+                "end": 1.0,
+                "start_beat": 0,
+                "end_beat": 1,
+                "confidence": 0.9,
+            },
+            {
+                "label": "Dmaj7",
+                "start": 1.0,
+                "end": 3.0,
+                "start_beat": 1,
+                "end_beat": 3,
+                "confidence": 0.8,
+            },
+            {
+                "label": "Gmaj7",
+                "start": 3.0,
+                "end": 4.0,
+                "start_beat": 3,
+                "end_beat": 4,
+                "confidence": 0.7,
+            },
         ]
     )
 
@@ -432,6 +453,7 @@ def test_detect_chord_segments_loads_independent_sources_concurrently(
     source.write_bytes(b"wav")
     stems_dir.mkdir()
     (stems_dir / "piano.wav").write_bytes(b"wav")
+    monkeypatch.setattr(chords_mod, "BACKGROUND_CPU_THREADS", 2)
     barrier = threading.Barrier(2)
     chroma = _multi_frame_source(
         "piano",
@@ -441,7 +463,7 @@ def test_detect_chord_segments_loads_independent_sources_concurrently(
     )
 
     def fake_load_chroma_source(*args, **kwargs):
-        barrier.wait(timeout=1.0)
+        barrier.wait(timeout=5.0)
         return chroma
 
     monkeypatch.setattr(chords_mod, "_load_chroma_source", fake_load_chroma_source)
@@ -532,7 +554,9 @@ def test_write_chord_midi_uses_ascii_safe_title_metadata(tmp_path: Path):
 
 
 def test_midi_text_falls_back_when_title_has_no_ascii():
-    assert _midi_text("曲名だけ", "LayerLab Chord Progression", 120) == b"LayerLab Chord Progression"
+    assert (
+        _midi_text("曲名だけ", "LayerLab Chord Progression", 120) == b"LayerLab Chord Progression"
+    )
 
 
 def test_write_chord_midi_quantizes_detected_beats_as_quarter_notes(tmp_path: Path):
@@ -550,9 +574,7 @@ def test_write_chord_midi_quantizes_detected_beats_as_quarter_notes(tmp_path: Pa
 def test_write_chord_midi_preserves_audio_leadin_and_tempo_map(tmp_path: Path):
     out = tmp_path / "tempo-map.mid"
     beat_times = [0.25, 0.75, 1.26, 1.74, 2.25]
-    segments = [
-        ChordSegment("C", 0.25, 2.25, 0, (0, 4, 7), 0.9, start_beat=0, end_beat=4)
-    ]
+    segments = [ChordSegment("C", 0.25, 2.25, 0, (0, 4, 7), 0.9, start_beat=0, end_beat=4)]
 
     write_chord_midi(out, segments, bpm=120, title="Tempo Map", beat_times=beat_times)
 

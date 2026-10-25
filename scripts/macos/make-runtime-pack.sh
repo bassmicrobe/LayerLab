@@ -4,7 +4,7 @@ set -euo pipefail
 ARCH="${ARCH:-arm64}"
 VERSION="${VERSION:-LOCAL_DEV_TEST}"
 VERSION="${VERSION#v}"
-RELEASE_BASE_URL="${RELEASE_BASE_URL:-https://github.com/bassmicrobe/stemdeck/releases/download/v${VERSION}}"
+RELEASE_BASE_URL="${RELEASE_BASE_URL:-https://github.com/bassmicrobe/LayerLab/releases/download/v${VERSION}}"
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BUILD_DIR="${REPO_ROOT}/.build"
 STAGING="${BUILD_DIR}/runtime-staging-${ARCH}"
@@ -13,20 +13,25 @@ PYTHON_DIR="${RUNTIME_DIR}/python"
 BACKEND_DIR="${RUNTIME_DIR}/backend"
 BIN_DIR="${RUNTIME_DIR}/bin"
 LICENSE_BUNDLE_DIR="${BUILD_DIR}/license-bundle-${ARCH}"
+SOURCE_COMMIT="$(git -C "$REPO_ROOT" rev-parse HEAD)"
+SOURCE_DIRTY="false"
+if ! git -C "$REPO_ROOT" diff --quiet HEAD; then
+  SOURCE_DIRTY="true"
+fi
 
 if [[ "$(uname)" != "Darwin" ]]; then
   echo "ERROR: make-runtime-pack.sh must run on macOS" >&2
   exit 1
 fi
 
-if [[ "$ARCH" != "arm64" && "$ARCH" != "x64" ]]; then
-  echo "ERROR: ARCH must be arm64 or x64, got '${ARCH}'" >&2
+if [[ "$ARCH" != "arm64" ]]; then
+  echo "ERROR: secure PyTorch runtimes support Apple Silicon only; Intel macOS wheels are no longer maintained." >&2
   exit 1
 fi
 
 PYTHON_BIN="${PYTHON_BIN:-}"
 if [[ -z "$PYTHON_BIN" ]]; then
-  for candidate in python3.12 python3.11 python3.10 python3; do
+  for candidate in python3.13 python3.12 python3.11 python3; do
     if command -v "$candidate" >/dev/null 2>&1; then
       PYTHON_BIN="$candidate"
       break
@@ -34,7 +39,7 @@ if [[ -z "$PYTHON_BIN" ]]; then
   done
 fi
 
-for cmd in cargo ditto rustup shasum tar "$PYTHON_BIN"; do
+for cmd in cargo rustc ditto shasum tar uv "$PYTHON_BIN"; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
     echo "ERROR: required command not found on PATH: $cmd" >&2
     exit 1
@@ -52,10 +57,10 @@ print(platform.machine())
 PY
 )"
 case "$PYTHON_VERSION" in
-  3.10|3.11|3.12|3.13) ;;
+  3.11|3.12|3.13) ;;
   *)
-    echo "ERROR: ${PYTHON_BIN} is Python ${PYTHON_VERSION}; Torch 2.6 runtime builds require Python 3.10-3.13." >&2
-    echo "Set PYTHON_BIN=/path/to/python3.12 or PYTHON_BIN=/path/to/python3.11." >&2
+    echo "ERROR: ${PYTHON_BIN} is Python ${PYTHON_VERSION}; secure runtime builds require Python 3.11-3.13." >&2
+    echo "Set PYTHON_BIN=/path/to/python3.13." >&2
     exit 1
     ;;
 esac
@@ -86,7 +91,12 @@ else
 fi
 
 echo "==> Building Rust PCM sidecar (${RUST_TARGET})"
-rustup target add "$RUST_TARGET"
+if command -v rustup >/dev/null 2>&1; then
+  rustup target add "$RUST_TARGET"
+elif [[ ! -d "$(rustc --print target-libdir --target "$RUST_TARGET")" ]]; then
+  echo "ERROR: Rust target ${RUST_TARGET} is unavailable; install it with rustup." >&2
+  exit 1
+fi
 cargo build \
   --manifest-path "$REPO_ROOT/desktop/src-tauri/Cargo.toml" \
   --release \
@@ -142,11 +152,51 @@ find "$PYTHON_DIR/lib" -name "EXTERNALLY-MANAGED" -delete
 
 echo "==> Installing packages into bundled Python"
 # --system is required because $PYTHON_DIR is not a venv (it's a full Python install).
-uv pip install --system --python "$PYTHON_DIR/bin/python" pip setuptools wheel
+uv pip install --system --python "$PYTHON_DIR/bin/python" --upgrade 'pip>=26.2' setuptools wheel
+# Use the tested lockfile rather than resolving a different set for each build.
+uv export --project "$REPO_ROOT" --locked --no-dev --no-emit-project \
+  --output-file "$BUILD_DIR/runtime-requirements-${ARCH}.txt" >/dev/null
+uv pip install --system --python "$PYTHON_DIR/bin/python" \
+  --requirement "$BUILD_DIR/runtime-requirements-${ARCH}.txt"
 # The project version is git-derived (hatch-vcs). Pin it explicitly from $VERSION
 # so the install doesn't depend on git tags being present in the build checkout (#169).
 SETUPTOOLS_SCM_PRETEND_VERSION="${VERSION#v}" \
-  uv pip install --system --python "$PYTHON_DIR/bin/python" "$REPO_ROOT"
+  uv pip install --system --python "$PYTHON_DIR/bin/python" --no-deps "$REPO_ROOT"
+
+echo "==> Auditing the actual bundled dependencies (no vulnerability exclusions)"
+uv pip list --system --python "$PYTHON_DIR/bin/python" --format=json \
+  > "$BUILD_DIR/runtime-pip-list-${ARCH}.json"
+"$PYTHON_BIN" - "$BUILD_DIR/runtime-pip-list-${ARCH}.json" <<'PY' \
+  > "$BUILD_DIR/runtime-audit-requirements-${ARCH}.txt"
+import json, sys
+for package in json.load(open(sys.argv[1])):
+    # Our own application is not a third-party PyPI distribution.
+    if package["name"].lower() != "layerlab":
+        print(f'{package["name"]}=={package["version"]}')
+PY
+uvx --from pip-audit==2.10.0 pip-audit --strict --disable-pip --no-deps \
+  --requirement "$BUILD_DIR/runtime-audit-requirements-${ARCH}.txt" \
+  --format json --output "$BUILD_DIR/DEPENDENCY_AUDIT-macOS-${ARCH}.json"
+cp "$BUILD_DIR/DEPENDENCY_AUDIT-macOS-${ARCH}.json" "$RUNTIME_DIR/DEPENDENCY_AUDIT.json"
+
+SOURCE_COMMIT="$SOURCE_COMMIT" SOURCE_DIRTY="$SOURCE_DIRTY" VERSION="$VERSION" \
+  REPO_ROOT="$REPO_ROOT" PYTHONHOME="$PYTHON_DIR" "$PYTHON_DIR/bin/python" - <<'PY' \
+  > "$RUNTIME_DIR/BUILD_PROVENANCE.json"
+import hashlib, importlib.metadata, json, os, pathlib, platform
+root = pathlib.Path(os.environ["REPO_ROOT"])
+print(json.dumps({
+    "version": os.environ["VERSION"],
+    "sourceCommit": os.environ["SOURCE_COMMIT"],
+    "sourceDirty": os.environ["SOURCE_DIRTY"] == "true",
+    "lockSha256": hashlib.sha256((root / "uv.lock").read_bytes()).hexdigest(),
+    "platform": "macOS-arm64",
+    "minimumMacOS": "14.0",
+    "python": platform.python_version(),
+    "packages": {name: importlib.metadata.version(name) for name in ("torch", "torchaudio", "demucs")},
+    "dependencyAudit": {"tool": "pip-audit 2.10.0", "vulnerabilityExclusions": [], "knownVulnerabilities": 0},
+}, indent=2))
+PY
+cp "$RUNTIME_DIR/BUILD_PROVENANCE.json" "$BUILD_DIR/BUILD_PROVENANCE-macOS-${ARCH}.json"
 
 # imageio-ffmpeg wheels include a GPL-enabled FFmpeg executable. Desktop setup
 # downloads FFmpeg directly from the disclosed provider, so do not silently

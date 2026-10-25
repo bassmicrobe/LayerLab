@@ -258,7 +258,7 @@ if ($CpuOnly) {
   # pip strips local version identifiers when resolving requirements, so it installs
   # the CUDA wheel from PyPI even when we pre-install the CPU wheel. Force-reinstall
   # after the fact: uninstalls CUDA torch and replaces it with the CPU-only variant.
-  & $PythonExe -m pip install torch==2.6.0+cpu torchaudio==2.6.0+cpu `
+  & $PythonExe -m pip install torch==2.14.1+cpu `
       --index-url https://download.pytorch.org/whl/cpu `
       --force-reinstall --no-deps
 }

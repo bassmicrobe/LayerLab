@@ -83,7 +83,9 @@ def analyze_chord_midi(
             "tempo_bpm": bpm,
             "source_key": source_key,
             "detected_midi_key": (
-                f"{detected_key.tonic.name} {detected_key.mode}" if detected_key is not None else None
+                f"{detected_key.tonic.name} {detected_key.mode}"
+                if detected_key is not None
+                else None
             ),
             "note_event_count": len(notes),
             "pitch_min": min(pitches).nameWithOctave if pitches else None,

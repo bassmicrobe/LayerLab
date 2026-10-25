@@ -99,7 +99,7 @@ steps:
           throw "GitHub CLI is required on the Windows agent to upload release assets."
         }
       - |
-        $releaseRepo = if ($env:CI_REPO) { $env:CI_REPO } else { "bassmicrobe/stemdeck" }
+        $releaseRepo = if ($env:CI_REPO) { $env:CI_REPO } else { "bassmicrobe/LayerLab" }
         $scanNote = "Windows portable packages were scanned with ClamAV in CI before upload."
         $bodyRaw = gh release view "$env:CI_COMMIT_TAG" --repo "$releaseRepo" --json body --jq ".body"
         $body = ($bodyRaw -join "`n")
@@ -110,7 +110,7 @@ steps:
           gh release edit "$env:CI_COMMIT_TAG" --repo "$releaseRepo" --notes-file $notesPath
         }
       - |
-        $releaseRepo = if ($env:CI_REPO) { $env:CI_REPO } else { "bassmicrobe/stemdeck" }
+        $releaseRepo = if ($env:CI_REPO) { $env:CI_REPO } else { "bassmicrobe/LayerLab" }
         $existing = gh release view "$env:CI_COMMIT_TAG" --repo "$releaseRepo" --json assets --jq '[.assets[].name] | join(" ")'
         if ($existing -like "*LayerLab-Windows-x64.zip*") {
           Write-Host "Windows assets already present for $env:CI_COMMIT_TAG — skipping upload (pre-release promotion)."

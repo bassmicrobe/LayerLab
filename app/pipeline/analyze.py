@@ -256,8 +256,7 @@ def compute_stem_presence(
     rms_values: dict[str, float] = {
         name: max(0.0, float(analysis.rms))
         for name, analysis in (pcm_analyses or {}).items()
-        if name in selected_stems
-        and analysis.duration_seconds > 0
+        if name in selected_stems and analysis.duration_seconds > 0
     }
 
     available = [stems_dir / f"{name}.wav" for name in selected_stems]
@@ -292,8 +291,7 @@ def compute_stem_presence(
         if max_rms < 1e-9:
             return {name: 0 for name in rms_values}
         return {
-            name: max(0, min(100, round(rms / max_rms * 100)))
-            for name, rms in rms_values.items()
+            name: max(0, min(100, round(rms / max_rms * 100))) for name, rms in rms_values.items()
         }
 
     if job is not None:
@@ -404,8 +402,7 @@ def _normalize_quarter_note_grid(
         per_beat = gap / max(1, multiple)
         if 2 <= multiple <= 4 and abs(per_beat - normalized_median) <= normalized_median * 0.16:
             expanded.extend(
-                round(start + (gap * step / multiple), 3)
-                for step in range(1, multiple)
+                round(start + (gap * step / multiple), 3) for step in range(1, multiple)
             )
     expanded.append(round(normalized[-1], 3))
     return expanded
@@ -530,9 +527,7 @@ def analyze(job: Job, source: Path) -> tuple[int | None, str | None]:
             intervals = np.diff(np.asarray(beat_times_list, dtype=np.float64))
             median_iv = float(np.median(intervals))
             if median_iv > 0:
-                usable = intervals[
-                    (intervals >= median_iv * 0.55) & (intervals <= median_iv * 1.8)
-                ]
+                usable = intervals[(intervals >= median_iv * 0.55) & (intervals <= median_iv * 1.8)]
                 if usable.size:
                     robust_iv = float(np.median(usable))
                     bpm = int(round(60.0 / robust_iv)) if robust_iv > 0 else None

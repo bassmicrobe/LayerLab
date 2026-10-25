@@ -123,9 +123,7 @@ def test_restore_recovers_orphan_done_job_from_stems(tmp_path: Path):
                 "beat_times": [0.5, 1.0, 1.5],
                 "downbeat_times": [0.5],
                 "beat_tracker": "beat_this:small0",
-                "chord_progression": [
-                    {"label": "C", "start": 0.5, "end": 1.5, "confidence": 0.9}
-                ],
+                "chord_progression": [{"label": "C", "start": 0.5, "end": 1.5, "confidence": 0.9}],
                 "midi_analysis": {"engine": "music21", "detected_midi_key": "C major"},
                 "midi_analysis_url": "/api/jobs/abcdefabcdee/midi-analysis.json",
                 "selected_stems": ["vocals"],
@@ -201,7 +199,7 @@ def test_restored_job_serves_stems(tmp_path: Path, monkeypatch):
 
     from app.main import app
 
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1") as client:
         state = client.get("/api/jobs/abcdefabcded")
         assert state.status_code == 200
         assert state.json()["status"] == "done"
@@ -221,7 +219,7 @@ def test_delete_updates_persisted_registry(tmp_path: Path, monkeypatch):
 
     from app.main import app
 
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1") as client:
         response = client.delete(f"/api/jobs/{job.id}")
 
     assert response.status_code == 200

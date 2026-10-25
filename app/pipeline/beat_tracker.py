@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import logging
+import re
 import threading
 from dataclasses import dataclass
 from pathlib import Path
@@ -50,6 +51,23 @@ def _device_for_job(job: Job) -> str:
     return "cuda" if job.demucs_device_resolved == "cuda" else "cpu"
 
 
+def _checkpoint_path(model: str) -> Path:
+    """Pass a local checkpoint to Beat This!'s explicit weights_only loader."""
+    import torch
+    from beat_this.inference import CHECKPOINT_URL
+
+    local = Path(model).expanduser()
+    if local.is_file():
+        return local.resolve()
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", model):
+        raise ValueError("beat model must be an official short name or a local checkpoint")
+    checkpoint = Path(torch.hub.get_dir()) / "checkpoints" / f"beat_this-{model}.ckpt"
+    if not checkpoint.is_file():
+        checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        torch.hub.download_url_to_file(f"{CHECKPOINT_URL}/{model}.ckpt", str(checkpoint))
+    return checkpoint
+
+
 def _tracker(model: str, device: str) -> tuple[object, threading.Lock]:
     key = (model, device)
     with _cache_lock:
@@ -60,7 +78,7 @@ def _tracker(model: str, device: str) -> tuple[object, threading.Lock]:
 
         logger.info("loading Beat This! model %s on %s", model, device)
         instance = File2Beats(
-            checkpoint_path=model,
+            checkpoint_path=str(_checkpoint_path(model)),
             device=device,
             float16=device == "cuda",
             dbn=False,

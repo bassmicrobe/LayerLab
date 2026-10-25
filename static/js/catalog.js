@@ -5,6 +5,7 @@ import { initSections } from "./sections.js";
 import { bpmChip, keyChip, saveSelectedStems, selectedStems, titleEl } from "./state.js";
 import { showError, importFromUrl, showJobProgress } from "./job.js";
 import { fmtBeatGrid, fmtTime, storeGet, storeSet } from "./utils.js";
+import { createModalController } from "./dialog.js";
 
 // Escape user-supplied strings before inserting into innerHTML.
 function esc(s) {
@@ -1020,6 +1021,15 @@ function dropOnFolder(folderId, trackId) {
 }
 
 function wireTrackDragAndLoad(el, trackId) {
+  el.tabIndex = 0;
+  el.setAttribute("role", "button");
+  el.setAttribute("aria-label", `Open ${tracks[trackId]?.title || "track"}`);
+  el.setAttribute("aria-current", String(trackId === _currentTrackId));
+  el.addEventListener("keydown", (event) => {
+    if (event.target !== el || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    loadTrackIntoStudio(trackId);
+  });
   el.draggable = true;
   el.addEventListener("dragstart", (e) => {
     startDrag(trackId, el, e);
@@ -1734,11 +1744,11 @@ function wireWidgets() {
 
 const FALLBACK_VERSION = "0.1.0";
 let currentVersion = FALLBACK_VERSION;
-const REPO_URL = "https://github.com/bassmicrobe/stemdeck";
-const RELEASES_URL = "https://github.com/bassmicrobe/stemdeck/releases";
+const REPO_URL = "https://github.com/bassmicrobe/LayerLab";
+const RELEASES_URL = "https://github.com/bassmicrobe/LayerLab/releases";
 // GitHub's /releases/latest endpoint ignores pre-releases. Enhanced test builds
 // are intentionally published as pre-releases, so read the release list instead.
-const RELEASES_API = "https://api.github.com/repos/bassmicrobe/stemdeck/releases?per_page=10";
+const RELEASES_API = "https://api.github.com/repos/bassmicrobe/LayerLab/releases?per_page=10";
 const DISMISSED_UPDATE_KEY = "stemdeck.dismissed_update";
 
 function normalizeVersion(value) {
@@ -1823,17 +1833,7 @@ function wireAboutDialog() {
 
   if (version) version.textContent = `v${currentVersion}`;
 
-  const open = () => dialog.classList.remove("hidden");
-  const hide = () => dialog.classList.add("hidden");
-
-  btn.addEventListener("click", open);
-  close?.addEventListener("click", hide);
-  dialog.addEventListener("mousedown", (e) => {
-    if (e.target === dialog) hide();
-  });
-  dialog.addEventListener("keydown", (e) => {
-    if (e.code === "Escape") hide();
-  });
+  createModalController({ dialog, trigger: btn, closeButton: close, initialFocus: close });
 }
 
 // Supporters dialog: a TV rail button opens a centered modal (like About) with
@@ -1901,12 +1901,7 @@ function wireSupportersDialog() {
     });
   }
 
-  const open = () => dialog.classList.remove("hidden");
-  const hide = () => dialog.classList.add("hidden");
-  btn.addEventListener("click", open);
-  close?.addEventListener("click", hide);
-  dialog.addEventListener("mousedown", (e) => { if (e.target === dialog) hide(); });
-  dialog.addEventListener("keydown", (e) => { if (e.code === "Escape") hide(); });
+  createModalController({ dialog, trigger: btn, closeButton: close, initialFocus: close });
 }
 
 async function syncWithServer() {

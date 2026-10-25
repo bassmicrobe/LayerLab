@@ -7,7 +7,7 @@ authors = ["LayerLab contributors"]
 edition = "2021"
 rust-version = "1.88"
 license = "Apache-2.0"
-repository = "https://github.com/bassmicrobe/stemdeck"
+repository = "https://github.com/bassmicrobe/LayerLab"
 default-run = "layerlab"
 
 [build-dependencies]
@@ -25,8 +25,6 @@ tar = "0.4"
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
 tauri-plugin-store = "2"
+tempfile = "3"
 zip = { version = "2", default-features = false, features = ["deflate"] }
 zstd = "0.13"
-
-[dev-dependencies]
-tempfile = "3"

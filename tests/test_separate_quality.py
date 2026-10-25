@@ -23,7 +23,14 @@ def test_build_demucs_command_includes_quality_flags(monkeypatch, tmp_path: Path
     source = tmp_path / "source.demucs.wav"
     cmd = separate.build_demucs_command(source, tmp_path, settings, device="cpu")
 
-    assert cmd[:6] == [separate.sys.executable, "-m", "demucs", "-n", "htdemucs_ft", "-d"]
+    assert cmd[:6] == [
+        separate.sys.executable,
+        "-m",
+        "app.pipeline.demucs_cli",
+        "-n",
+        "htdemucs_ft",
+        "-d",
+    ]
     assert "cpu" in cmd
     assert cmd[cmd.index("--shifts") : cmd.index("--shifts") + 2] == ["--shifts", "4"]
     assert cmd[cmd.index("--overlap") : cmd.index("--overlap") + 2] == ["--overlap", "0.25"]

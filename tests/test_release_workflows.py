@@ -11,9 +11,9 @@ def test_macos_release_uses_layerlab_artifacts_and_current_ci_repository():
     assert "LayerLab.app" in workflow
     assert "StemDeck-macOS" not in workflow
     assert '--repo "$RELEASE_REPO"' in workflow
-    assert 'RELEASE_REPO="${CI_REPO:-bassmicrobe/stemdeck}"' in workflow
+    assert 'RELEASE_REPO="${CI_REPO:-bassmicrobe/LayerLab}"' in workflow
     assert "SETUPTOOLS_SCM_PRETEND_VERSION" in workflow
-    assert 'pyproject.toml' not in workflow
+    assert "pyproject.toml" not in workflow
 
 
 def test_windows_release_uses_layerlab_artifacts_and_current_ci_repository():
@@ -23,6 +23,6 @@ def test_windows_release_uses_layerlab_artifacts_and_current_ci_repository():
     assert "LayerLab-Windows-x64.zip" in workflow
     assert "StemDeck-Windows" not in workflow
     assert '--repo "$releaseRepo"' in workflow
-    assert '$releaseRepo = if ($env:CI_REPO)' in workflow
+    assert "$releaseRepo = if ($env:CI_REPO)" in workflow
     assert "$env:SETUPTOOLS_SCM_PRETEND_VERSION" in workflow
-    assert "Get-Content \"pyproject.toml\"" not in workflow
+    assert 'Get-Content "pyproject.toml"' not in workflow

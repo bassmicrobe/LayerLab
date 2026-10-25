@@ -1,20 +1,16 @@
 # LayerLab
 
-> このページは現行LayerLabの案内です。`main`には旧実装を保持しているため、ソース版は必ず[`feat/high-quality-separation`](https://github.com/bassmicrobe/LayerLab/tree/feat/high-quality-separation)を使用してください。この更新では`main`のアプリコードを変更していません。
-
 **[StemDeck](https://github.com/stemdeckapp/stemdeck)をベースに、音源分離・解析・デスクトップ機能を拡張した非公式forkです。**
 
-**日本語** | [English](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/README.en.md) | [詳細な日本語ガイド](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/README.ja.md) | [操作マニュアル](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/MANUAL.ja.md)
+**日本語** | [English](README.en.md) | [詳細な日本語ガイド](README.ja.md) | [操作マニュアル](MANUAL.ja.md)
 
-[![CI](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml/badge.svg?branch=feat%2Fhigh-quality-separation)](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml)
+[![CI](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml)
 
 音源を自分のPCで分離し、試聴・ミックス・書き出しできるローカルアプリです。MP3 / WAV / FLAC / M4A、利用する権利を持つYouTube・SoundCloud音源に対応します。分離サービスへの音源アップロード、アカウント登録、サブスクリプションは不要です。
 
 > **非公式 fork test build / unofficial fork test build**
 >
 > 元プロジェクトは [StemDeck（stemdeckapp/stemdeck）](https://github.com/stemdeckapp/stemdeck) です。LayerLabはApache License 2.0に基づく非公式変更版であり、元プロジェクトの公式リリースではありません。元プロジェクトとの提携・承認・推奨関係はありません。
-
-LayerLab is an unofficial modified fork of [StemDeck](https://github.com/stemdeckapp/stemdeck), not affiliated with or endorsed by the original project. Demucs code is MIT-licensed, but its published pretrained weights are not covered by that MIT license and have separate personal/research-use caveats. See the license section below before redistribution or commercial use.
 
 ## プロジェクトの由来
 
@@ -25,9 +21,9 @@ LayerLab is an unofficial modified fork of [StemDeck](https://github.com/stemdec
 
 アプリ名とこのforkのリポジトリ名を`LayerLab`に変更しました。元のStemDeck自体を改名したものではありません。元プロジェクトへの帰属とApache-2.0の`LICENSE`・`NOTICE`を保持しています。
 
-このforkでは品質プリセット、float32/Rust後処理、モデル常駐ワーカー、キューと進捗表示、コード/MIDI解析、独自UI、ローカルデスクトップ配布を追加・改良しています。詳細は[日本語ガイドの変更点](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/README.ja.md#この-fork-で加えた主な変更)とGit履歴を参照してください。
+このforkでは品質プリセット、float32/Rust後処理、モデル常駐ワーカー、キューと進捗表示、コード/MIDI解析、独自UI、ローカルデスクトップ配布を追加・改良しています。詳細は[日本語ガイドの変更点](README.ja.md#この-fork-で加えた主な変更)とGit履歴を参照してください。
 
-現行のLayerLab実装・検証済み手順は[`feat/high-quality-separation`ブランチ](https://github.com/bassmicrobe/LayerLab/tree/feat/high-quality-separation)を対象とします。ソースから使う場合も、下記の手順でこのブランチへ切り替えてください。配布アプリは[Releases](https://github.com/bassmicrobe/LayerLab/releases)から取得できます。
+現行のLayerLab実装・検証済み手順は[`main`ブランチ](https://github.com/bassmicrobe/LayerLab/tree/main)を対象とします。ソースから使う場合も、下記の手順でこのブランチへ切り替えてください。配布アプリは[Releases](https://github.com/bassmicrobe/LayerLab/releases)から取得できます。
 
 ## ダウンロードと公開状況
 
@@ -41,7 +37,7 @@ LayerLab is an unofficial modified fork of [StemDeck](https://github.com/stemdec
 
 macOS版はDMGを開き、アプリをApplicationsへインストールして起動します。初回は同梱ランタイムを検証・展開し、FFmpeg/ffprobeを取得します。AIモデルは必要になったときに取得します。初回セットアップにはインターネット接続と数GB以上の空き容量が必要です。
 
-**現在の公開条件:** 同じコミットに対してCI・依存関係のセキュリティ検査・配布物検証が成功した場合にだけ公開します。PyTorchを2.14.1へ更新し、DemucsのWAV保存をSoundFileへ移行しました。公式モデルは読込ごとにチェックサムを確認し、`weights_only=True`と限定的な許可リストで読み込みます。危険な旧版や無制限pickle読込へのフォールバックは行いません。検査成功も脆弱性が一切ないことの保証ではありません。[監査記録](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/AUDIT.ja.md) と [セキュリティ方針](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/SECURITY.md) を確認してください。
+**現在の公開条件:** 同じコミットに対してCI・依存関係のセキュリティ検査・配布物検証が成功した場合にだけ公開します。PyTorchを2.14.1へ更新し、DemucsのWAV保存をSoundFileへ移行しました。公式モデルは読込ごとにチェックサムを確認し、`weights_only=True`と限定的な許可リストで読み込みます。危険な旧版や無制限pickle読込へのフォールバックは行いません。検査成功も脆弱性が一切ないことの保証ではありません。[監査記録](AUDIT.ja.md) と [セキュリティ方針](SECURITY.md) を確認してください。
 
 Developer ID署名・Apple公証を実施していないビルドは、その旨をRelease本文に明記します。ad-hoc署名は正式な配布署名ではありません。安全な現行PyTorchのwheelがないIntel Macは非対応です。Windowsは今回の配布検証・公開対象外です。
 
@@ -61,12 +57,12 @@ Developer ID署名・Apple公証を実施していないビルドは、その旨
 
 ## ローカルWeb版の起動
 
-Git、uv、対応するPython（3.11～3.13）が必要です。Python 3.13を推奨し、macOS用CIも3.13で検証します。開発・ビルド手順の詳細は[日本語ガイド](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/README.ja.md)にあります。
+Git、uv、対応するPython（3.11～3.13）が必要です。Python 3.13を推奨し、macOS用CIも3.13で検証します。開発・ビルド手順の詳細は[日本語ガイド](README.ja.md)にあります。
 
 ```sh
 git clone https://github.com/bassmicrobe/LayerLab.git
 cd LayerLab
-git switch feat/high-quality-separation
+git switch main
 ./run.sh setup
 ./run.sh start
 ```
@@ -85,13 +81,13 @@ git switch feat/high-quality-separation
 
 LayerLab / StemDeck由来コードは **Apache License 2.0** です。条件を守ればコードの改変・再配布・商用利用が可能ですが、モデル・音源・商標まで同じ許諾になるわけではありません。
 
-- [LICENSE](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/LICENSE) と [NOTICE](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/NOTICE) を保持し、元プロジェクトへの帰属・変更点・非公式版であることを明記します。Apache-2.0は商標権を自動許諾しません。
-- 第三者ソフトウェアは各ライセンスに従います。実配布環境から生成する [一覧](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/packaging/generated/macos-arm64/THIRD_PARTY_NOTICES.md)、[全文](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/packaging/generated/macos-arm64/THIRD_PARTY_LICENSES.txt)、[JSONインベントリ](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/packaging/generated/macos-arm64/THIRD_PARTY_INVENTORY.json) を同梱します。配布時のファイル名は`THIRD_PARTY_NOTICES.txt`、`THIRD_PARTY_LICENSES.txt`、`THIRD_PARTY_INVENTORY.json`です。
+- [LICENSE](LICENSE) と [NOTICE](NOTICE) を保持し、元プロジェクトへの帰属・変更点・非公式版であることを明記します。Apache-2.0は商標権を自動許諾しません。
+- 第三者ソフトウェアは各ライセンスに従います。実配布環境から生成する [一覧](packaging/generated/macos-arm64/THIRD_PARTY_NOTICES.md)、[全文](packaging/generated/macos-arm64/THIRD_PARTY_LICENSES.txt)、[JSONインベントリ](packaging/generated/macos-arm64/THIRD_PARTY_INVENTORY.json) を同梱します。配布時のファイル名は`THIRD_PARTY_NOTICES.txt`、`THIRD_PARTY_LICENSES.txt`、`THIRD_PARTY_INVENTORY.json`です。
 - Demucs本体コードはMITですが、標準の学習済み重みは別条件です。上流の開発者回答では個人・研究用途と説明されています。初回ダウンロードにしても商用利用権は追加されません。
 - FFmpegは実際のビルド構成に応じた条件が適用されます。現行のmacOS取得先はGPL-3.0-or-later版であり、アプリ独自コードのApache-2.0と混同しないでください。
 - 利用する音源の著作権・取得元の規約は利用者が別途確認してください。
 
-詳細は[日本語ガイドのライセンス説明](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/README.ja.md#商用利用有償配布について)、[採用OSSとモデル条件](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/OSS_COMPONENTS.md)を参照してください。法的助言や商用利用の一律保証ではありません。
+詳細は[日本語ガイドのライセンス説明](README.ja.md#商用利用有償配布について)、[採用OSSとモデル条件](OSS_COMPONENTS.md)を参照してください。法的助言や商用利用の一律保証ではありません。
 
 ## 開発・検証
 
@@ -106,4 +102,4 @@ bash scripts/check-distribution-notices.sh
 
 CIは[このforkのGitHub Actions](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml)で確認できます。上流のCIバッジや別コミットの成功結果は、このforkのRelease検証結果として扱いません。未解決の依存脆弱性を無視して公開する運用にはしていません。
 
-元の英語READMEの技術説明と謝辞は[英語版](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/README.en.md)に保持しています。このforkでの追加・変更点、ビルド・署名・容量・環境変数の詳細は[日本語ガイド](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/README.ja.md)、日常操作は[マニュアル](https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/MANUAL.ja.md)を参照してください。
+元の英語READMEの技術説明と謝辞は[英語版](README.en.md)に保持しています。このforkでの追加・変更点、ビルド・署名・容量・環境変数の詳細は[日本語ガイド](README.ja.md)、日常操作は[マニュアル](MANUAL.ja.md)を参照してください。

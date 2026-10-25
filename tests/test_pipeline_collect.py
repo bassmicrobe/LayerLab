@@ -355,7 +355,9 @@ def test_gate_stem_outputs_noops_when_disabled(tmp_path, monkeypatch):
     sf.write(stems_dir / "vocals.wav", samples, 44100, subtype="FLOAT")
     monkeypatch.setenv("STEMDECK_STEM_GATE", "0")
 
-    assert not gate_stem_outputs(Job(id="abcdefabcdef", quality_preset="high"), stems_dir, ["vocals"])
+    assert not gate_stem_outputs(
+        Job(id="abcdefabcdef", quality_preset="high"), stems_dir, ["vocals"]
+    )
 
     processed, _ = sf.read(stems_dir / "vocals.wav", dtype="float32", always_2d=True)
     np.testing.assert_allclose(processed, samples, atol=1e-7)

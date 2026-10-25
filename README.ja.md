@@ -1,5 +1,9 @@
 # LayerLab 日本語 README
 
+[日本語トップ](README.md) | [English](README.en.md) | [操作マニュアル](MANUAL.ja.md)
+
+このファイルは詳細ガイドです。現在の公開条件とダウンロード案内は[日本語トップ](README.md#ダウンロードと公開状況)を参照してください。CIのセキュリティ検査が失敗しているコミットの新規配布物は公開しません。
+
 LayerLab は、音源をローカル環境で stem 分離するためのデスクトップ/ローカルWebアプリです。MP3、WAV、FLAC、M4A、または YouTube URL を入力し、ボーカル、ドラム、ベース、ギター、ピアノ、その他などの stem に分離します。処理は基本的にユーザーのマシン上で完結し、音源をクラウドへアップロードしない設計です。
 
 このリポジトリは、元の StemDeck プロジェクトをベースにした非公式 fork test build です。元プロジェクトと本 fork は Apache License 2.0 のもとで配布されます。再配布時は `LICENSE` と `NOTICE` を同梱し、元プロジェクトの表示と本 fork の変更点を保持してください。本 fork は変更版であり、元プロジェクトの公式リリースではありません。元プロジェクトとは提携しておらず、元プロジェクトによる承認や推奨を受けたものでもありません。
@@ -7,9 +11,12 @@ LayerLab は、音源をローカル環境で stem 分離するためのデス�
 ## 元プロジェクト
 
 - 元プロジェクト: [stemdeckapp/stemdeck](https://github.com/stemdeckapp/stemdeck)
+- 本fork: [LayerLab / bassmicrobe/LayerLab](https://github.com/bassmicrobe/LayerLab)
 - ライセンス: Apache License 2.0
 - 本リポジトリ内のライセンス表記: [LICENSE](LICENSE), [NOTICE](NOTICE)
 - 配布物に含める表記: `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.txt`, `THIRD_PARTY_LICENSES.txt`, `THIRD_PARTY_INVENTORY.json`
+
+`LayerLab`は本forkの独自名称であり、元のStemDeck自体を改名したものではありません。README・NOTICEで出典を明示し、上流の著作権・ライセンス・帰属表示は保持します。
 
 Apache License 2.0 では、再配布時にライセンス本文を渡すこと、変更したファイルに変更があることを示すこと、NOTICE がある場合はその表示を保持することが求められます。本 fork では `NOTICE` に元プロジェクトへの帰属と変更概要を記載しています。
 
@@ -77,6 +84,20 @@ Apache License 2.0 は、ソフトウェアの商用利用、有償配布、社�
 
 起動後、ブラウザで `http://127.0.0.1:8765/` を開きます。`ffmpeg` がPATHにない場合でも、Python側で `imageio-ffmpeg` fallback を使えるようにしています。
 
+### セキュリティ・負荷制限
+
+このアプリは認証のないローカル・単一ユーザー向けです。標準の `127.0.0.1` で利用し、そのままインターネットへ公開しないでください。Host/Originの検証、リクエスト容量制限、書き出しの同時実行制限を追加していますが、ユーザー認証や利用者ごとのデータ分離を提供するものではありません。
+
+- `STEMDECK_MAX_EXPORTS`: 同時書き出し数。標準2、設定範囲1～4。超過時は503を返します。
+- `STEMDECK_ALLOWED_HOSTS`: 追加で許可する正確なホスト名/IPをカンマ区切りで指定。URL・ポート・ワイルドカードは指定できません。変更しても認証は追加されません。
+- JSON本文は1MiB、アップロードファイルは100MiBまで。容量超過や不正な値は登録前に拒否します。
+
+監査で修正した内容と確認範囲は [AUDIT.ja.md](AUDIT.ja.md)、運用上の脅威モデルは [SECURITY.md](SECURITY.md) を参照してください。PyTorch 2.14.1 / Torchaudio 2.11.0へ更新し、DemucsのWAV保存をSoundFileへ移行しました。公式モデルは毎回チェックサム検証し、限定的な許可リストと`weights_only=True`で読み込みます。無制限pickle読込や古いTorchへのフォールバックは行いません。検査成功も完全な安全の保証ではありません。
+
+対応Pythonは3.11～3.13です。macOSの配布対象は**macOS 14以降のApple Silicon専用**です。安全な現行wheelのないIntel Macは非対応、Windowsは今回の検証・公開対象外です。
+
+音源の保存期間は標準で処理完了後24時間です。`STEMDECK_JOB_TTL_SECONDS`で変更できます。永久保存ではないので、必要なstemやミックスは書き出してください。完了時刻を持たない古いジョブは受付時刻から計算します。
+
 ### 品質評価ベンチマーク
 
 品質プリセット、ノイズ除去、phase/bass repair の比較にはベンチマークスクリプトを使えます。左右チャンネルを保持してstem WAVを合計し、原音との差分、相関、実サンプルのクリップリスク、コード進行メタデータをJSONで出力します。
@@ -117,16 +138,22 @@ uv run python scripts/benchmark_audio.py \
 
 ### macOSデスクトップアプリ
 
-Apple Silicon の場合:
+Apple Silicon の場合（全工程で同じ有効なバージョンを指定）:
 
 ```sh
-rustup target add aarch64-apple-darwin
-ARCH=arm64 scripts/macos/make-runtime-pack.sh
-ARCH=arm64 scripts/macos/make-app.sh
-ARCH=arm64 scripts/macos/make-dmg.sh
+VERSION=0.7.0-alpha.17
+uv python install 3.13
+PYTHON_BIN="$(uv python find --managed-python 3.13)"
+ARCH=arm64 VERSION="$VERSION" PYTHON_BIN="$PYTHON_BIN" scripts/macos/make-runtime-pack.sh
+ARCH=arm64 VERSION="$VERSION" scripts/macos/make-app.sh
+ARCH=arm64 VERSION="$VERSION" scripts/macos/make-dmg.sh
 ```
 
 ビルド後の `.app` は `desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/LayerLab.app` に生成されます。DMG は `.build/macos-dist/LayerLab-macOS-arm64.dmg` に生成されます。
+
+依存関係は`uv.lock`に固定された内容から導入し、実際の同梱環境からライセンス一覧を再生成します。Rustは対象アーキテクチャの標準ライブラリが必要です。HomebrewのネイティブRustも利用できます。別アーキテクチャをビルドする場合は`rustup target add`等で準備してください。`APPLE_SIGNING_IDENTITY`未設定時はローカルテスト用のad-hoc署名であり、Appleの正式な配布署名・公証済みビルドではありません。
+
+同じバージョン番号の再ビルドでも、同梱ランタイムのチェックサムが変われば起動時に更新します。Pythonランタイムはアプリに同梱しますが、FFmpegやモデル重みの初回取得にはネット接続が必要です。
 
 ### Windows portable
 
@@ -227,7 +254,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/make-install
 
 ## 更新
 
-アプリ本体は fork 側の GitHub Releases の最新リリースを確認し、利用中のバージョンと違う場合は通知を表示します。デスクトップ版では、DMG更新後に runtime manifest のバージョンが変わっていれば初回セットアップ画面で runtime を更新します。
+アプリ本体は fork 側の GitHub Releases の最新リリースを確認し、利用中のバージョンと違う場合は通知を表示します。Pre-releaseはGitHubのlatest APIに現れない場合があるため、テスト版はRelease一覧から確認してください。デスクトップ版では、DMG更新後にruntime manifestのバージョンまたはチェックサムが変わっていれば初回セットアップ画面でruntimeを更新します。
 
 公開時は `unofficial fork test build` として GitHub Pre-release にする方針です。Release本文の冒頭で、元プロジェクトの公式版ではないこと、元プロジェクトと提携・承認関係がないこと、Apache License 2.0 に基づく fork であることを明記してください。
 
@@ -292,9 +319,9 @@ signtool verify /pa /v "LayerLab.exe"
 
 ## certifi セキュリティ更新（2026-10-23）
 
-ソース環境の certifi を 2026.10.19 に固定し、
+ソース環境の certifi に 2026.10.19 以上の下限を設定し、実際の固定バージョンは`uv.lock`に記録しています。
 [GHSA-6q48-6c7w-9gw2](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2)
-の対象 emSign ECC Root CA - G3 を信頼対象から除外しました。他の依存バージョンは変更していません。
+の対象 emSign ECC Root CA - G3 を信頼対象から除外します。本更新ではPillow等の追加更新も含むため、最新の依存関係と検査結果は`uv.lock`およびCIを確認してください。
 ソース版は更新を取得後に `uv sync --frozen` を実行し、アプリを再起動してください。
 
 公開済み v0.7.0-alpha.16 の macOS runtime には certifi 2026.5.20 と対象証明書が残っています。

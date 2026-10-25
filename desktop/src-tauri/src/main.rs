@@ -14,6 +14,7 @@ use std::{
 };
 use tar::Archive;
 use tauri::{Emitter, Manager};
+mod download;
 #[cfg(windows)]
 use zip::ZipArchive;
 
@@ -100,6 +101,7 @@ struct RuntimePackStatus {
     archive_path: Option<String>,
     archive_ready: bool,
     installed_version: Option<String>,
+    installed_sha256: Option<String>,
     manifest: Option<RuntimeManifest>,
 }
 
@@ -414,8 +416,16 @@ fn runtime_pack_status() -> Result<RuntimePackStatus, String> {
     let archive_path = manifest
         .as_ref()
         .map(|item| runtime_archive_path(&data_dir, item));
-    let installed_version = read_runtime_install_manifest(&runtime_dir)
+    let installed_manifest = read_runtime_install_manifest(&runtime_dir);
+    let installed_version = installed_manifest
+        .as_ref()
         .and_then(|value| value.get("version")?.as_str().map(|text| text.to_string()));
+    let installed_sha256 = installed_manifest.as_ref().and_then(|value| {
+        value
+            .get("runtimeSha256")?
+            .as_str()
+            .map(|text| text.to_string())
+    });
 
     Ok(RuntimePackStatus {
         manifest_ready: manifest.is_some(),
@@ -427,6 +437,7 @@ fn runtime_pack_status() -> Result<RuntimePackStatus, String> {
         archive_ready: archive_path.as_ref().is_some_and(|path| path.is_file()),
         archive_path: archive_path.map(|path| path.display().to_string()),
         installed_version,
+        installed_sha256,
         manifest,
     })
 }
@@ -1142,12 +1153,11 @@ fn install_cuda_torch(python: &Path, index_url: &str, state: &BackendState) -> R
     // runs — pip validates the `home` entry and fails if it doesn't exist.
     patch_pyvenv_cfg(python);
 
-    // Use the explicit local-version suffix (e.g. torch==2.6.0+cu124) so pip
-    // treats the CUDA wheel as a distinct version from the CPU-only 2.6.0
-    // wheel and doesn't skip the install as "already satisfied".
+    // Never reinstall a vulnerable legacy Torch to support an older CUDA index.
+    // An unavailable secure wheel must fail rather than downgrade the runtime.
     let tag = cuda_tag_from_url(index_url);
-    let torch_spec = format!("torch==2.6.0+{tag}");
-    let torchaudio_spec = format!("torchaudio==2.6.0+{tag}");
+    let torch_spec = format!("torch==2.14.1+{tag}");
+    let torchaudio_spec = "torchaudio==2.11.0";
     // --ignore-installed: overwrites even a corrupted/partial install that
     // has no RECORD file. --no-deps: only replace torch/torchaudio wheels.
     let mut command = Command::new(python);
@@ -1157,7 +1167,7 @@ fn install_cuda_torch(python: &Path, index_url: &str, state: &BackendState) -> R
             "pip",
             "install",
             &torch_spec,
-            &torchaudio_spec,
+            torchaudio_spec,
             "--index-url",
             index_url,
             "--ignore-installed",
@@ -1263,15 +1273,16 @@ async fn save_audio_file(
     url: String,
     filename: String,
 ) -> Result<(), String> {
-    if !url.starts_with("http://") && !url.starts_with("https://") {
-        return Err("only http/https URLs are permitted".to_string());
-    }
-    // Restrict to localhost to prevent SSRF from a compromised WebView (#138).
-    let parsed_url = reqwest::Url::parse(&url).map_err(|_| "invalid URL".to_string())?;
-    let host = parsed_url.host_str().unwrap_or("");
-    if host != "127.0.0.1" && host != "localhost" {
-        return Err("only localhost URLs are permitted".to_string());
-    }
+    let backend_url = app
+        .state::<BackendState>()
+        .inner
+        .lock()
+        .map_err(|_| "backend state unavailable")?
+        .handles
+        .as_ref()
+        .map(|handles| handles.url.clone())
+        .ok_or("backend is not running")?;
+    let parsed_url = download::validate_audio_url(&url, &backend_url)?;
 
     use tauri_plugin_dialog::DialogExt;
     let dest = app
@@ -1284,35 +1295,7 @@ async fn save_audio_file(
     };
     let dest = file_path.into_path().map_err(|e| e.to_string())?;
 
-    // Stream response to disk to avoid buffering a large audio file in memory (#139).
-    // 5-minute timeout covers large WAV exports over a slow loopback.
-    let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(300))
-        .build()
-        .map_err(|e| format!("failed to build client: {e}"))?;
-    let mut resp = client
-        .get(&url)
-        .send()
-        .await
-        .map_err(|e| format!("fetch failed: {e}"))?;
-    if !resp.status().is_success() {
-        return Err(format!("backend returned HTTP {}", resp.status()));
-    }
-    let tmp = dest.with_extension("audio.download");
-    let mut file =
-        std::fs::File::create(&tmp).map_err(|e| format!("failed to create temp file: {e}"))?;
-    while let Some(chunk) = resp
-        .chunk()
-        .await
-        .map_err(|e| format!("read failed: {e}"))?
-    {
-        file.write_all(&chunk)
-            .map_err(|e| format!("write failed: {e}"))?;
-    }
-    file.sync_all().map_err(|e| format!("flush failed: {e}"))?;
-    drop(file);
-    std::fs::rename(&tmp, &dest).map_err(|e| format!("rename failed: {e}"))?;
-    Ok(())
+    download::save_audio(parsed_url, &dest).await
 }
 
 fn stop_backend(state: &BackendState) {

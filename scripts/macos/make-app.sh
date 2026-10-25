@@ -14,8 +14,8 @@ if [[ "$(uname)" != "Darwin" ]]; then
   exit 1
 fi
 
-if [[ "$ARCH" != "arm64" && "$ARCH" != "x64" ]]; then
-  echo "ERROR: ARCH must be arm64 or x64, got '${ARCH}'" >&2
+if [[ "$ARCH" != "arm64" ]]; then
+  echo "ERROR: secure PyTorch runtimes support Apple Silicon only; Intel macOS is unsupported." >&2
   exit 1
 fi
 
@@ -59,6 +59,9 @@ fi
 
 RESOURCES="${APP_DIR}/Contents/Resources"
 mkdir -p "$RESOURCES"
+for evidence in BUILD_PROVENANCE DEPENDENCY_AUDIT; do
+  cp "$BUILD_DIR/${evidence}-macOS-${ARCH}.json" "$RESOURCES/${evidence}.json"
+done
 
 if [[ -f "$BUILD_DIR/runtime-manifest-${ARCH}.json" ]]; then
   cp "$BUILD_DIR/runtime-manifest-${ARCH}.json" "$RESOURCES/runtime-manifest.json"
