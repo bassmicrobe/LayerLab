@@ -7,11 +7,11 @@
 **Based on StemDeck. Unofficial fork test build. Free, local stem separation.**
 
 <div align="center">
-  <a href="https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml"><img src="https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml/badge.svg?branch=feat%2Fhigh-quality-separation" alt="Fork CI"></a>
+  <a href="https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml"><img src="https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml/badge.svg?branch=main" alt="Fork CI"></a>
   <a href="https://github.com/bassmicrobe/LayerLab/stargazers"><img src="https://img.shields.io/github/stars/bassmicrobe/LayerLab?style=flat-square" alt="Fork GitHub Stars"></a>
   <a href="https://github.com/bassmicrobe/LayerLab/releases"><img src="https://img.shields.io/github/downloads/bassmicrobe/LayerLab/total?style=flat-square&color=52c65f" alt="Fork Downloads"></a>
   <a href="https://github.com/bassmicrobe/LayerLab/releases"><img src="https://img.shields.io/github/v/release/bassmicrobe/LayerLab?include_prereleases&style=flat-square" alt="Fork Test Releases"></a>
-  <a href="https://github.com/bassmicrobe/LayerLab/blob/feat/high-quality-separation/LICENSE"><img src="https://img.shields.io/github/license/bassmicrobe/LayerLab?style=flat-square" alt="License"></a>
+  <a href="https://github.com/bassmicrobe/LayerLab/blob/main/LICENSE"><img src="https://img.shields.io/github/license/bassmicrobe/LayerLab?style=flat-square" alt="License"></a>
 </div>
 
 <br>
@@ -37,9 +37,9 @@ quality presets, float32/Rust processing, persistent model workers, queue/progre
 improvements, chord/MIDI analysis, a distinct UI and local desktop packaging.
 
 The current implementation and validated instructions target the
-[`feat/high-quality-separation` branch](https://github.com/bassmicrobe/LayerLab/tree/feat/high-quality-separation),
-not the older `main` implementation. Switch to that branch when using the source,
-or download a published test build from [Releases](https://github.com/bassmicrobe/LayerLab/releases).
+[`main` branch](https://github.com/bassmicrobe/LayerLab/tree/main).
+Use that branch when working from source, or download a published test build
+from [Releases](https://github.com/bassmicrobe/LayerLab/releases).
 
 Drop in an MP3, WAV, FLAC, or M4A file, or paste a YouTube URL, and LayerLab splits the audio into up to six stems (vocals, drums, bass, guitar, piano, other). Play them back in a DAW-style multitrack mixer: mute, solo, balance levels, zoom the waveform, loop a region, and export individual stems or a custom mix. Everything runs locally on your own machine.
 
@@ -274,7 +274,7 @@ Python 3.12 or newer, `ffmpeg` on your PATH, and [uv](https://github.com/astral-
 
 ```sh
 git clone https://github.com/bassmicrobe/LayerLab layerlab && cd layerlab
-git switch feat/high-quality-separation
+git switch main
 ./run.sh setup     # installs ffmpeg + uv, runs uv sync
 ./run.sh start
 ```
@@ -291,7 +291,7 @@ Install prerequisites:
 
 ```powershell
 git clone https://github.com/bassmicrobe/LayerLab layerlab; cd layerlab
-git switch feat/high-quality-separation
+git switch main
 uv sync
 uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
@@ -313,7 +313,7 @@ uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 ```sh
 git clone https://github.com/bassmicrobe/LayerLab layerlab && cd layerlab
-git switch feat/high-quality-separation
+git switch main
 uv sync
 uv run uvicorn app.main:app --reload
 ```

@@ -4,7 +4,7 @@
 
 **日本語** | [English](README.en.md) | [詳細な日本語ガイド](README.ja.md) | [操作マニュアル](MANUAL.ja.md)
 
-[![CI](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml/badge.svg?branch=feat%2Fhigh-quality-separation)](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml)
+[![CI](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bassmicrobe/LayerLab/actions/workflows/ci.yml)
 
 音源を自分のPCで分離し、試聴・ミックス・書き出しできるローカルアプリです。MP3 / WAV / FLAC / M4A、利用する権利を持つYouTube・SoundCloud音源に対応します。分離サービスへの音源アップロード、アカウント登録、サブスクリプションは不要です。
 
@@ -23,7 +23,7 @@
 
 このforkでは品質プリセット、float32/Rust後処理、モデル常駐ワーカー、キューと進捗表示、コード/MIDI解析、独自UI、ローカルデスクトップ配布を追加・改良しています。詳細は[日本語ガイドの変更点](README.ja.md#この-fork-で加えた主な変更)とGit履歴を参照してください。
 
-現行のLayerLab実装・検証済み手順は[`feat/high-quality-separation`ブランチ](https://github.com/bassmicrobe/LayerLab/tree/feat/high-quality-separation)を対象とします。ソースから使う場合も、下記の手順でこのブランチへ切り替えてください。配布アプリは[Releases](https://github.com/bassmicrobe/LayerLab/releases)から取得できます。
+現行のLayerLab実装・検証済み手順は[`main`ブランチ](https://github.com/bassmicrobe/LayerLab/tree/main)を対象とします。ソースから使う場合も、下記の手順でこのブランチへ切り替えてください。配布アプリは[Releases](https://github.com/bassmicrobe/LayerLab/releases)から取得できます。
 
 ## ダウンロードと公開状況
 
@@ -62,7 +62,7 @@ Git、uv、対応するPython（3.11～3.13）が必要です。Python 3.13を�
 ```sh
 git clone https://github.com/bassmicrobe/LayerLab.git
 cd LayerLab
-git switch feat/high-quality-separation
+git switch main
 ./run.sh setup
 ./run.sh start
 ```
