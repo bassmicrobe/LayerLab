@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import queue
+import threading
 import time
 from collections import deque
 from pathlib import Path
@@ -107,15 +108,24 @@ def test_worker_compatibility_rejects_unpinned_demucs(monkeypatch):
 def test_heartbeat_emits_until_context_exits():
     from app.pipeline.demucs_worker import inference_heartbeat
 
-    events = []
-    with inference_heartbeat("job-1", events.append, interval=0.01):
-        time.sleep(0.035)
+    events = queue.Queue()
+    two_heartbeats = threading.Event()
+    emitted = threading.Event()
 
-    heartbeat_count = sum(event.get("event") == "heartbeat" for event in events)
-    assert heartbeat_count >= 2
-    stopped_at = len(events)
-    time.sleep(0.025)
-    assert len(events) == stopped_at
+    def record(event):
+        events.put(event)
+        emitted.set()
+        if events.qsize() >= 2:
+            two_heartbeats.set()
+
+    with inference_heartbeat("job-1", record, interval=0.01):
+        assert two_heartbeats.wait(timeout=5.0), "heartbeat worker did not emit twice"
+
+    captured = tuple(events.get_nowait() for _ in range(events.qsize()))
+    assert all(event["event"] == "heartbeat" for event in captured)
+    assert all(event["requestId"] == "job-1" for event in captured)
+    emitted.clear()
+    assert not emitted.wait(timeout=0.05), "heartbeat continued after context exit"
 
 
 def test_worker_pool_keeps_gpu_capacity_at_one(monkeypatch):

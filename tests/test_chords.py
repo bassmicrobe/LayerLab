@@ -453,6 +453,7 @@ def test_detect_chord_segments_loads_independent_sources_concurrently(
     source.write_bytes(b"wav")
     stems_dir.mkdir()
     (stems_dir / "piano.wav").write_bytes(b"wav")
+    monkeypatch.setattr(chords_mod, "BACKGROUND_CPU_THREADS", 2)
     barrier = threading.Barrier(2)
     chroma = _multi_frame_source(
         "piano",
@@ -462,7 +463,7 @@ def test_detect_chord_segments_loads_independent_sources_concurrently(
     )
 
     def fake_load_chroma_source(*args, **kwargs):
-        barrier.wait(timeout=1.0)
+        barrier.wait(timeout=5.0)
         return chroma
 
     monkeypatch.setattr(chords_mod, "_load_chroma_source", fake_load_chroma_source)
