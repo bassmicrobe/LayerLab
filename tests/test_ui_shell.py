@@ -60,7 +60,10 @@ def test_modal_triggers_reference_their_dialogs() -> None:
 def test_ui_styles_cover_keyboard_focus_and_mobile_navigation() -> None:
     css = UX_CSS.read_text(encoding="utf-8")
 
-    assert ".daw :where(button, a, input, select, [role=\"button\"], [role=\"slider\"]):focus-visible" in css
+    assert (
+        '.daw :where(button, a, input, select, [role="button"], [role="slider"]):focus-visible'
+        in css
+    )
     assert ".daw-empty-state" in css
     assert ".daw.no-track .daw-empty-state" in css
     assert ".daw .sidebar-rail-mobile" in css

@@ -137,8 +137,22 @@ def test_chord_metrics_summarizes_metadata(tmp_path: Path):
                 "duration_sec": 2.0,
                 "beat_times": [0.0, 0.5, 1.0],
                 "chord_progression": [
-                    {"label": "C", "confidence": 0.8, "start": 0.0, "end": 1.0, "start_beat": 0, "end_beat": 2},
-                    {"label": "Gmaj7", "confidence": 0.6, "start": 1.0, "end": 1.5, "start_beat": 2, "end_beat": 3},
+                    {
+                        "label": "C",
+                        "confidence": 0.8,
+                        "start": 0.0,
+                        "end": 1.0,
+                        "start_beat": 0,
+                        "end_beat": 2,
+                    },
+                    {
+                        "label": "Gmaj7",
+                        "confidence": 0.6,
+                        "start": 1.0,
+                        "end": 1.5,
+                        "start_beat": 2,
+                        "end_beat": 3,
+                    },
                 ],
             }
         ),
@@ -266,7 +280,14 @@ def test_benchmark_jobs_root_and_compare_reports(tmp_path: Path):
             {
                 "duration_sec": 1.0,
                 "chord_progression": [
-                    {"label": "C", "confidence": 0.9, "start": 0.0, "end": 1.0, "start_beat": 0, "end_beat": 4}
+                    {
+                        "label": "C",
+                        "confidence": 0.9,
+                        "start": 0.0,
+                        "end": 1.0,
+                        "start_beat": 0,
+                        "end_beat": 4,
+                    }
                 ],
             }
         ),

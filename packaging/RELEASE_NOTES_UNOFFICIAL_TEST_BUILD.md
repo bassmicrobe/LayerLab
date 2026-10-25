@@ -16,6 +16,14 @@ certified build, or upstream-supported product.
 
 ## Assets
 
+This file is a release-note template, not proof that a build is published.
+Publish as a GitHub **Pre-release** only after CI (including the strict dependency
+audit) passes for the exact release commit and freshly rebuilt assets pass
+verification. Record that commit, CI URL, SHA-256 checksums, target architecture,
+and actual signing/notarization status in the published release. Do not reuse an
+older runtime or upload assets while compatibility-pinned dependencies still
+fail the security gate.
+
 - `LayerLab-macOS-arm64.dmg`
 - `LayerLab-runtime-macOS-arm64.tar.zst`
 - `SHA256SUMS-macOS-arm64.txt`
@@ -40,8 +48,8 @@ certified build, or upstream-supported product.
 - This is a test build. Use at your own risk.
 - macOS public builds should be Developer ID signed and notarized before broad
   distribution.
-- First launch downloads a pinned runtime pack, FFmpeg/ffprobe, and later the
-  Demucs model cache.
+- The macOS DMG includes the Python runtime pack; first launch verifies and
+  extracts it locally. FFmpeg/ffprobe and AI models are downloaded when needed.
 - Audio processing runs locally on the user's machine.
 
 ## 日本語
@@ -49,6 +57,12 @@ certified build, or upstream-supported product.
 これは元の StemDeck をベースにした非公式の変更版 fork test build です。
 元プロジェクトの公式リリースではなく、元プロジェクトとの提携、承認、
 推奨を示すものではありません。
+
+このファイルは公開用テンプレートです。対象コミットのCI・依存脆弱性監査と、
+同じコミットから再ビルドしたDMG/ランタイムの検証がすべて成功した場合のみ、
+GitHubのPre-releaseとして公開します。公開本文にはコミット、CI結果へのリンク、
+SHA-256、対象アーキテクチャ、実際の署名・公証状況を記載します。
+未解決の依存脆弱性がある場合は公開を見送ります。
 
 Apache License 2.0 に基づき、配布物には LICENSE、NOTICE、
 `THIRD_PARTY_NOTICES.txt`、`THIRD_PARTY_LICENSES.txt`、

@@ -196,9 +196,7 @@ def _stem_pair_metrics(
     scale_residual_energy = max(0.0, predicted_energy - projection_energy)
     raw_residual_energy = max(0.0, predicted_energy + target_energy - (2.0 * cross))
     epsilon = max(target_energy * 1e-12, 1e-20)
-    si_sdr = 10.0 * math.log10(
-        (projection_energy + epsilon) / (scale_residual_energy + epsilon)
-    )
+    si_sdr = 10.0 * math.log10((projection_energy + epsilon) / (scale_residual_energy + epsilon))
     sdr = 10.0 * math.log10((target_energy + epsilon) / (raw_residual_energy + epsilon))
     reference_phase = _stereo_phase_correlation(reference[:length])
     estimate_phase = _stereo_phase_correlation(estimate[:length])
@@ -289,9 +287,7 @@ def reference_stem_metrics(
         if isinstance(item.get("si_sdr_db"), int | float)
     ]
     sdr_values = [
-        item["sdr_db"]
-        for item in per_stem.values()
-        if isinstance(item.get("sdr_db"), int | float)
+        item["sdr_db"] for item in per_stem.values() if isinstance(item.get("sdr_db"), int | float)
     ]
     dropout_values = [
         item["dropout_percent"]
@@ -340,8 +336,7 @@ def stem_sum_metrics(
 
     source_audio = decode_audio_stereo(source, sr=sr, duration=duration)
     stem_audio = [
-        decode_audio_stereo(stems_dir / f"{name}.wav", sr=sr, duration=duration)
-        for name in used
+        decode_audio_stereo(stems_dir / f"{name}.wav", sr=sr, duration=duration) for name in used
     ]
     length = min([len(source_audio), *(len(audio) for audio in stem_audio)])
     if length <= 0:
@@ -353,7 +348,9 @@ def stem_sum_metrics(
         }
 
     source_aligned = source_audio[:length].astype(np.float64, copy=False)
-    stem_sum = np.sum(np.stack([audio[:length].astype(np.float64, copy=False) for audio in stem_audio]), axis=0)
+    stem_sum = np.sum(
+        np.stack([audio[:length].astype(np.float64, copy=False) for audio in stem_audio]), axis=0
+    )
     residual = source_aligned - stem_sum
 
     source_rms = _rms(source_aligned)
@@ -405,9 +402,7 @@ def chord_metrics(metadata_path: Path | None, stems_dir: Path | None = None) -> 
         if isinstance(item, dict) and isinstance(item.get("confidence"), int | float)
     ]
     labels = [
-        str(item.get("label"))
-        for item in segments
-        if isinstance(item, dict) and item.get("label")
+        str(item.get("label")) for item in segments if isinstance(item, dict) and item.get("label")
     ]
     beat_lengths: list[float] = []
     second_lengths: list[float] = []
@@ -442,7 +437,9 @@ def chord_metrics(metadata_path: Path | None, stems_dir: Path | None = None) -> 
         "unique_labels": sorted(set(labels)),
         "label_counts": dict(sorted(Counter(labels).items())),
         "average_confidence": _round(float(np.mean(confidences)) if confidences else None, 3),
-        "average_beats_per_segment": _round(float(np.mean(beat_lengths)) if beat_lengths else None, 3),
+        "average_beats_per_segment": _round(
+            float(np.mean(beat_lengths)) if beat_lengths else None, 3
+        ),
         "short_segment_count": sum(1 for beats in beat_lengths if beats <= 1.01),
         "unstable_short_segment_count": unstable_short,
         "chord_changes_per_minute": _round(
@@ -627,9 +624,15 @@ def benchmark_jobs_root(
         "jobs_root": str(jobs_root),
         "job_count": len(reports),
         "summary": {
-            "stem_sum_residual_percent_mean": _round(float(np.mean(residuals)) if residuals else None, 3),
-            "stem_sum_residual_percent_max": _round(float(np.max(residuals)) if residuals else None, 3),
-            "chord_confidence_mean": _round(float(np.mean(chord_confidences)) if chord_confidences else None, 3),
+            "stem_sum_residual_percent_mean": _round(
+                float(np.mean(residuals)) if residuals else None, 3
+            ),
+            "stem_sum_residual_percent_max": _round(
+                float(np.max(residuals)) if residuals else None, 3
+            ),
+            "chord_confidence_mean": _round(
+                float(np.mean(chord_confidences)) if chord_confidences else None, 3
+            ),
             "unstable_short_segment_total": int(sum(unstable_counts)),
         },
         "jobs": reports,
@@ -638,7 +641,9 @@ def benchmark_jobs_root(
 
 def compare_benchmark_reports(current: dict[str, Any], baseline: dict[str, Any]) -> dict[str, Any]:
     current_summary = current.get("summary", {}) if isinstance(current.get("summary"), dict) else {}
-    baseline_summary = baseline.get("summary", {}) if isinstance(baseline.get("summary"), dict) else {}
+    baseline_summary = (
+        baseline.get("summary", {}) if isinstance(baseline.get("summary"), dict) else {}
+    )
     keys = sorted(set(current_summary) | set(baseline_summary))
     deltas: dict[str, Any] = {}
     for key in keys:

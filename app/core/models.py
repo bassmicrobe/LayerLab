@@ -180,7 +180,11 @@ class Job:
         if progress < 0.01 or progress >= 0.995:
             return None
         elapsed = self.processing_seconds()
-        if elapsed <= 0.0 and self.processing_started_at is None and self.progress_started_at is None:
+        if (
+            elapsed <= 0.0
+            and self.processing_started_at is None
+            and self.progress_started_at is None
+        ):
             elapsed = max(0.0, time.time() - self.status_started_at)
         if elapsed < 2.0:
             return None
@@ -227,7 +231,9 @@ class Job:
 
     def profile_label(self) -> str:
         stems = self.profile_stems()
-        quality = _QUALITY_LABELS.get((self.quality_preset or "standard").lower(), self.quality_preset)
+        quality = _QUALITY_LABELS.get(
+            (self.quality_preset or "standard").lower(), self.quality_preset
+        )
         denoise = _DENOISE_LABELS.get(
             (self.stem_denoise_preset or "off").lower(),
             self.stem_denoise_preset or "Noise off",

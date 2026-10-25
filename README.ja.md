@@ -1,5 +1,9 @@
 # LayerLab 日本語 README
 
+[日本語トップ](README.md) | [English](README.en.md) | [操作マニュアル](MANUAL.ja.md)
+
+このファイルは詳細ガイドです。現在の公開条件とダウンロード案内は[日本語トップ](README.md#ダウンロードと公開状況)を参照してください。CIのセキュリティ検査が失敗しているコミットの新規配布物は公開しません。
+
 LayerLab は、音源をローカル環境で stem 分離するためのデスクトップ/ローカルWebアプリです。MP3、WAV、FLAC、M4A、または YouTube URL を入力し、ボーカル、ドラム、ベース、ギター、ピアノ、その他などの stem に分離します。処理は基本的にユーザーのマシン上で完結し、音源をクラウドへアップロードしない設計です。
 
 このリポジトリは、元の StemDeck プロジェクトをベースにした非公式 fork test build です。元プロジェクトと本 fork は Apache License 2.0 のもとで配布されます。再配布時は `LICENSE` と `NOTICE` を同梱し、元プロジェクトの表示と本 fork の変更点を保持してください。本 fork は変更版であり、元プロジェクトの公式リリースではありません。元プロジェクトとは提携しておらず、元プロジェクトによる承認や推奨を受けたものでもありません。
@@ -245,7 +249,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/make-install
 
 ## 更新
 
-アプリ本体は fork 側の GitHub Releases の最新リリースを確認し、利用中のバージョンと違う場合は通知を表示します。デスクトップ版では、DMG更新後に runtime manifest のバージョンが変わっていれば初回セットアップ画面で runtime を更新します。
+アプリ本体は fork 側の GitHub Releases の最新リリースを確認し、利用中のバージョンと違う場合は通知を表示します。Pre-releaseはGitHubのlatest APIに現れない場合があるため、テスト版はRelease一覧から確認してください。デスクトップ版では、DMG更新後にruntime manifestのバージョンまたはチェックサムが変わっていれば初回セットアップ画面でruntimeを更新します。
 
 公開時は `unofficial fork test build` として GitHub Pre-release にする方針です。Release本文の冒頭で、元プロジェクトの公式版ではないこと、元プロジェクトと提携・承認関係がないこと、Apache License 2.0 に基づく fork であることを明記してください。
 
@@ -307,3 +311,15 @@ Windows 署名確認例:
 ```powershell
 signtool verify /pa /v "LayerLab.exe"
 ```
+
+## certifi セキュリティ更新（2026-10-23）
+
+ソース環境の certifi に 2026.10.19 以上の下限を設定し、実際の固定バージョンは`uv.lock`に記録しています。
+[GHSA-6q48-6c7w-9gw2](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2)
+の対象 emSign ECC Root CA - G3 を信頼対象から除外します。本更新ではPillow等の追加更新も含むため、最新の依存関係と検査結果は`uv.lock`およびCIを確認してください。
+ソース版は更新を取得後に `uv sync --frozen` を実行し、アプリを再起動してください。
+
+公開済み v0.7.0-alpha.16 の macOS runtime には certifi 2026.5.20 と対象証明書が残っています。
+今回のソース更新だけではインストール済みアプリや配布済みアーカイブは更新されません。
+macOS 上で通常手順による runtime/app の再ビルド・検証・配布が必要です。
+TLS 検証の無効化や、削除対象証明書の再追加はしないでください。

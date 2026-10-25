@@ -1,0 +1,36 @@
+name: Certifi security
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  ca-bundle-and-tls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Install only the locked HTTP dependency closure with verified hashes
+        run: |
+          python - <<'PY'
+          import pathlib, tomllib
+          lock = tomllib.loads(pathlib.Path('uv.lock').read_text())
+          names = {'certifi', 'requests', 'httpx', 'httpcore', 'h11', 'anyio',
+                   'idna', 'typing-extensions', 'charset-normalizer', 'urllib3'}
+          packages = [p for p in lock['package'] if p['name'] in names]
+          assert len(packages) == len(names)
+          lines = []
+          for p in packages:
+              hashes = ' '.join('--hash=' + w['hash'] for w in p['wheels'])
+              lines.append(f"{p['name']}=={p['version']} {hashes}")
+          pathlib.Path('/tmp/http-requirements.txt').write_text('\n'.join(lines) + '\n')
+          PY
+          python -m pip install --require-hashes --only-binary=:all: -r /tmp/http-requirements.txt
+      - name: Check locked certifi, removed roots, and verified upstream TLS
+        env:
+          CERTIFI_TLS_SMOKE: '1'
+        run: python -m unittest discover -s tests -p test_certifi_security.py -v

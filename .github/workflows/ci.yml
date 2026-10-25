@@ -1,0 +1,100 @@
+name: Fork CI
+
+on:
+  push:
+    branches: [main, feat/high-quality-separation]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fork-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SETUPTOOLS_SCM_PRETEND_VERSION: '0.0.0'
+  UV_LINK_MODE: copy
+
+jobs:
+  python:
+    name: Python tests and quality
+    runs-on: macos-14
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+      - name: Install locked environment and FFmpeg
+        run: |
+          python -m pip install uv==0.11.16
+          brew install ffmpeg
+          uv sync --frozen --all-extras --python "$(command -v python)"
+      - name: Lint and format
+        run: |
+          uv run --frozen ruff check app tests
+          uv run --frozen ruff format --check app tests
+          bash -n run.sh scripts/check-distribution-notices.sh
+      - name: Run Python suite with real FFmpeg available
+        run: uv run --frozen pytest -q
+      - name: Verify CA roots and real TLS downloads
+        env:
+          CERTIFI_TLS_SMOKE: '1'
+        run: uv run --frozen python -m unittest discover -s tests -p test_certifi_security.py -v
+
+  frontend:
+    name: Frontend and distribution notices
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check JavaScript and desktop runtime tests
+        run: |
+          node --version
+          for file in static/js/*.js; do node --check "$file"; done
+          node --test tests/*.test.mjs
+      - name: Verify distribution attribution and bilingual documentation
+        run: bash scripts/check-distribution-notices.sh
+
+  native:
+    name: macOS Rust tests
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Test desktop supervisor and PCM sidecar
+        working-directory: desktop/src-tauri
+        run: cargo test --locked
+
+  security:
+    name: Strict dependency and source audit
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+      - name: Install the exact locked runtime dependencies
+        run: |
+          python -m pip install uv==0.11.16
+          uv sync --frozen --all-extras --python "$(command -v python)"
+      - name: Source security scan (medium severity and above)
+        run: uvx --from bandit==1.9.4 bandit -r app -ll
+      - name: Audit installed dependencies without vulnerability exclusions
+        run: |
+          uv pip freeze --exclude-editable --python .venv/bin/python > audit-requirements.txt
+          uvx --from pip-audit==2.10.0 pip-audit --strict --disable-pip --no-deps \
+            --requirement audit-requirements.txt \
+            --format json --output dependency-audit.json
+      - name: Preserve dependency audit evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dependency-audit-${{ github.sha }}
+          path: |
+            dependency-audit.json
+            audit-requirements.txt
+          if-no-files-found: warn

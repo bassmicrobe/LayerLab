@@ -346,7 +346,8 @@ def _blend_bass_dropout_repair(
                 deficit = residual_env - (bass_env * trigger_ratio)
                 weight = np.clip(deficit / (residual_env + 1e-8), 0.0, max_blend)
                 short_gap_mask = _boolean_moving_fill(
-                    (residual_env > floor) & (bass_env * BASS_REPAIR_SHORT_GAP_RATIO < residual_env),
+                    (residual_env > floor)
+                    & (bass_env * BASS_REPAIR_SHORT_GAP_RATIO < residual_env),
                     short_gap,
                 )
                 short_gap_weight = np.where(short_gap_mask, max_blend * 0.72, 0.0)
@@ -394,7 +395,9 @@ def _commit_pcm_outputs(
     if not valid:
         for _, output in pairs:
             output.unlink(missing_ok=True)
-        logger.warning("Rust PCM output validation failed for job %s; using Python fallback", job.id)
+        logger.warning(
+            "Rust PCM output validation failed for job %s; using Python fallback", job.id
+        )
         return None
 
     changed = 0
@@ -416,9 +419,7 @@ def _run_rust_pcm_file_operation(
 ) -> int | None:
     payload = {
         "operation": operation,
-        "files": [
-            {"input": str(source), "output": str(output)} for source, output in pairs
-        ],
+        "files": [{"input": str(source), "output": str(output)} for source, output in pairs],
         **settings,
     }
     response = run_pcm_command(job, payload)
@@ -436,9 +437,7 @@ def process_stem_outputs_with_rust(
 ) -> dict[str, PcmAnalysis] | None:
     """Fuse final gate, stabilization, RMS, and waveform analysis in Rust."""
     available = [
-        stems_dir / f"{name}.wav"
-        for name in stem_names
-        if (stems_dir / f"{name}.wav").is_file()
+        stems_dir / f"{name}.wav" for name in stem_names if (stems_dir / f"{name}.wav").is_file()
     ]
     if not available:
         return None
@@ -459,9 +458,7 @@ def process_stem_outputs_with_rust(
         job,
         {
             "operation": "process",
-            "files": [
-                {"input": str(source), "output": str(output)} for source, output in pairs
-            ],
+            "files": [{"input": str(source), "output": str(output)} for source, output in pairs],
             "gate": gate,
             "stabilize": stabilize,
             "bins": _PEAK_POINTS,
@@ -1052,7 +1049,9 @@ def gate_stem_outputs(job: Job, stems_dir: Path, stem_names: list[str]) -> bool:
 
     old_stage = job.stage_message
     tmp_pairs: list[tuple[Path, Path]] = []
-    subtype = "FLOAT" if wav_codec_for_quality_preset(job.quality_preset) == "pcm_f32le" else "PCM_16"
+    subtype = (
+        "FLOAT" if wav_codec_for_quality_preset(job.quality_preset) == "pcm_f32le" else "PCM_16"
+    )
     _set(job, stage="Gating near-silent stem bleed...")
     try:
         total = max(1, len(available))
@@ -1290,8 +1289,7 @@ def compute_stem_peaks(
                         minima = np.minimum(np.min(shaped, axis=(1, 2)), 0.0)
                         maxima = np.maximum(np.max(shaped, axis=(1, 2)), 0.0)
                         result.extend(
-                            [float(mn), float(mx)]
-                            for mn, mx in zip(minima, maxima, strict=False)
+                            [float(mn), float(mx)] for mn, mx in zip(minima, maxima, strict=False)
                         )
                     remainder = block[full_bins * chunk :]
                     if remainder.size and len(result) < _PEAK_POINTS:

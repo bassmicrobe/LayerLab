@@ -74,10 +74,7 @@ class DemucsProgress:
         if self.model_count == 1 and self.shifts == 1:
             label = f"Separating {percent}%"
         elif self.model_count == 1:
-            label = (
-                f"Separating shift {self.pass_index + 1}/{self.shifts}"
-                f" · {percent}%"
-            )
+            label = f"Separating shift {self.pass_index + 1}/{self.shifts} · {percent}%"
         else:
             model_index = min(self.model_count - 1, self.pass_index // self.shifts)
             shift_index = self.pass_index % self.shifts
@@ -219,10 +216,7 @@ def _separate_cli(
         while not _done_evt.wait(timeout=30):
             if proc.poll() is not None:
                 return
-            if (
-                TIMEOUT_DEMUCS_TOTAL > 0
-                and time.monotonic() - started_at > TIMEOUT_DEMUCS_TOTAL
-            ):
+            if TIMEOUT_DEMUCS_TOTAL > 0 and time.monotonic() - started_at > TIMEOUT_DEMUCS_TOTAL:
                 watchdog_reason[0] = "total"
                 logger.warning(
                     "demucs exceeded total timeout of %ss, terminating job %s",

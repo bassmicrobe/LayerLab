@@ -329,7 +329,9 @@ def _run_common(job: Job, source: Path, job_dir: Path) -> None:
             stage="chords",
         )
     except Exception as error:
-        logger.warning("chord analysis failed after audio became ready for job %s", job.id, exc_info=True)
+        logger.warning(
+            "chord analysis failed after audio became ready for job %s", job.id, exc_info=True
+        )
         _set(job, analysis_error="Chord analysis failed; stem audio remains available")
         add_job_log(job, error, level="warning", stage="chords")
     finally:

@@ -53,9 +53,7 @@ async def test_pipeline_preserves_ready_audio_when_background_analysis_fails(tmp
         stems_dir = job_dir / "stems"
         stems_dir.mkdir(parents=True, exist_ok=True)
         (stems_dir / "vocals.wav").write_bytes(b"ready")
-        job_arg.stems = [
-            {"name": "vocals", "url": f"/api/jobs/{job_arg.id}/stems/vocals.wav"}
-        ]
+        job_arg.stems = [{"name": "vocals", "url": f"/api/jobs/{job_arg.id}/stems/vocals.wav"}]
         job_arg.audio_ready = True
         raise RuntimeError("chord model crashed")
 

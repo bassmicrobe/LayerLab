@@ -111,7 +111,9 @@ def persist(jobs_dir: Path) -> None:
                     for job in sorted(_jobs.values(), key=lambda item: item.created_at)
                     if job.status in _TERMINAL
                 ]
-                payload = json.dumps({"version": REGISTRY_VERSION, "jobs": records}, indent=2) + "\n"
+                payload = (
+                    json.dumps({"version": REGISTRY_VERSION, "jobs": records}, indent=2) + "\n"
+                )
             atomic_write_text(path, payload)
     except (OSError, TypeError, ValueError):
         logger.warning("cannot persist registry under %s", jobs_dir, exc_info=True)

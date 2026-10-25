@@ -168,9 +168,7 @@ class PersistentDemucsWorker:
                     ) from None
                 continue
             if message is _EOF:
-                raise error_type(
-                    f"Demucs worker closed its protocol stream: {self._detail()}"
-                )
+                raise error_type(f"Demucs worker closed its protocol stream: {self._detail()}")
             assert isinstance(message, dict)
             return message
 
@@ -357,9 +355,7 @@ class DemucsWorkerPool:
         """Release stale models and one oldest model under memory pressure."""
         checked_at = time.monotonic() if now is None else now
         with self._condition:
-            if not any(
-                not worker.busy and worker.proc.poll() is None for worker in self._workers
-            ):
+            if not any(not worker.busy and worker.proc.poll() is None for worker in self._workers):
                 return 0
         free_memory = available_memory_gb()
         memory_pressure = (
@@ -370,9 +366,7 @@ class DemucsWorkerPool:
         victims: list[PersistentDemucsWorker] = []
         with self._condition:
             idle = [
-                worker
-                for worker in self._workers
-                if not worker.busy and worker.proc.poll() is None
+                worker for worker in self._workers if not worker.busy and worker.proc.poll() is None
             ]
             victims = [
                 worker

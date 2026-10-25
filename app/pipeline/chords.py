@@ -160,7 +160,11 @@ def _canonical_chord_label(label: str | None) -> str:
         root_text, quality_text = text.split(":", 1)
     else:
         root_text = next(
-            (pitch for pitch in sorted((*_PITCHES, *_FLAT_TO_SHARP), key=len, reverse=True) if text.startswith(pitch)),
+            (
+                pitch
+                for pitch in sorted((*_PITCHES, *_FLAT_TO_SHARP), key=len, reverse=True)
+                if text.startswith(pitch)
+            ),
             "",
         )
         quality_text = text[len(root_text) :]
@@ -169,7 +173,11 @@ def _canonical_chord_label(label: str | None) -> str:
         return "N.C."
     quality, slash, bass = quality_text.partition("/")
     quality = _QUALITY_ALIASES.get(quality.lower(), quality)
-    suffix = f"/{_FLAT_TO_SHARP.get(bass, bass)}" if slash and bass in (*_PITCHES, *_FLAT_TO_SHARP) else ""
+    suffix = (
+        f"/{_FLAT_TO_SHARP.get(bass, bass)}"
+        if slash and bass in (*_PITCHES, *_FLAT_TO_SHARP)
+        else ""
+    )
     return f"{root}{quality}{suffix}"
 
 
@@ -280,7 +288,9 @@ def _simple_chord_for_style(seg: ChordSegment, style: str) -> ChordSegment:
     )
 
 
-def _quantize_segments_to_bars(segments: list[ChordSegment], beats_per_bar: int = 4) -> list[ChordSegment]:
+def _quantize_segments_to_bars(
+    segments: list[ChordSegment], beats_per_bar: int = 4
+) -> list[ChordSegment]:
     usable = [seg for seg in segments if seg.start_beat is not None and seg.end_beat is not None]
     if not usable:
         return segments
@@ -347,7 +357,9 @@ def _normalize_chroma_frames(chroma: np.ndarray) -> np.ndarray:
     return np.divide(matrix, totals, out=np.zeros_like(matrix), where=totals > 1e-8)
 
 
-def _template_vector(root: int, intervals: tuple[int, ...], weights: tuple[float, ...]) -> np.ndarray:
+def _template_vector(
+    root: int, intervals: tuple[int, ...], weights: tuple[float, ...]
+) -> np.ndarray:
     template = np.zeros(12, dtype=np.float32)
     for interval, weight in zip(intervals, weights, strict=False):
         template[(root + interval) % 12] = weight
@@ -451,9 +463,7 @@ def _rank_chord_candidates(
             off_energy = float(np.sum(normalized[template <= 0.001]))
             root_energy = float(normalized[root])
             fifth_energy = float(normalized[(root + 7) % 12])
-            third_energy = float(
-                max(normalized[(root + 3) % 12], normalized[(root + 4) % 12])
-            )
+            third_energy = float(max(normalized[(root + 3) % 12], normalized[(root + 4) % 12]))
             score = (
                 support
                 + (0.20 * root_energy)
@@ -544,7 +554,9 @@ def _select_chord_sequence(
         inferred_key is not None and inferred_key != key_context and len(vectors) >= 8
     ):
         key_context = inferred_key
-    ranked = [_rank_chord_candidates(vector, key_context=key_context, limit=8) for vector in vectors]
+    ranked = [
+        _rank_chord_candidates(vector, key_context=key_context, limit=8) for vector in vectors
+    ]
     if len(ranked) == 1:
         return [ranked[0][0]]
 
@@ -1020,9 +1032,7 @@ def detect_chord_segments(
     if bass_path is not None:
         load_specs.append(("bass", bass_path, 1.0, False, True))
     loaded_sources = _load_chroma_sources(load_specs, end_time=end_time, job=job)
-    chord_sources = [
-        loaded for loaded in loaded_sources[: len(chord_paths)] if loaded is not None
-    ]
+    chord_sources = [loaded for loaded in loaded_sources[: len(chord_paths)] if loaded is not None]
     if not chord_sources:
         return []
     bass_source = loaded_sources[-1] if bass_path is not None else None
