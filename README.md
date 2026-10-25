@@ -596,3 +596,8 @@ Issues, feature suggestions, and pull requests are welcome. See open issues for 
    <img alt="Fork Star History Chart" src="https://api.star-history.com/chart?repos=bassmicrobe/stemdeck&type=date&legend=top-left" />
   </picture>
 </a>
+
+## セキュリティ更新（2026-10-25）
+
+- Pillow **≥13.0.0**（music21 経由の推移依存）
+- Python base image: `python:3.12.15-slim@sha256:a0f57064…`
