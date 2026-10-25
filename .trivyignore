@@ -1,14 +1,3 @@
-# CVE-2025-32434: torch remote code execution via torch.load, fixed in 2.6.0.
-# The Intel macOS (x86_64) runtime is pinned to torch>=2.2,<2.3 because
-# PyTorch does not publish macOS x86_64 wheels for 2.6.x. StemDeck never
-# exposes an API for user-supplied checkpoints; standard model weights are
-# fetched by Demucs with hash checking. This compatibility exception is NOT
-# a remediation: untrusted/replaced local checkpoints remain unsafe. See
-# SECURITY.md and AUDIT.ja.md for unresolved PyTorch advisories.
-# Drop this ignore once PyTorch publishes 2.6.x macOS x86_64 wheels or once
-# the torchaudio/torchcodec story stabilises and the pin can be lifted.
-CVE-2025-32434
-
 # DS-0002: Dockerfile missing USER instruction.
 # The image intentionally starts as root so the entrypoint script
 # (build/docker-entrypoint.sh) can re-chown the bind-mounted /app/jobs
