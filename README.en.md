@@ -320,6 +320,8 @@ uv run uvicorn app.main:app --reload
 
 #### Docker
 
+The build and runtime stages both use the pinned base image `python:3.12.16-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b`.
+
 ```sh
 docker compose -f build/docker-compose.yml up --build
 ```
